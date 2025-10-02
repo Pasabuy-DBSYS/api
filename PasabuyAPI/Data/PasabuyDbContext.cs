@@ -7,6 +7,7 @@ namespace PasabuyAPI.Data
     {
         public DbSet<Users> Users { get; set; }
         public DbSet<Orders> Orders { get; set; }
+        public DbSet<DeliveryDetails> DeliveryDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +24,12 @@ namespace PasabuyAPI.Data
                 .WithMany(u => u.CourierOrders)
                 .HasForeignKey(o => o.CourierId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Orders>()
+                .HasOne(o => o.DeliveryDetails)
+                .WithOne(d => d.Order)
+                .HasForeignKey<DeliveryDetails>(d => d.OrderIdPK)
+                .IsRequired(false);
         }
     }
 }

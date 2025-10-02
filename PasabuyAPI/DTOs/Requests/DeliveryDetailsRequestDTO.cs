@@ -1,16 +1,9 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace PasabuyAPI.Models
+namespace PasabuyAPI.DTOs.Requests
 {
-    public class DeliveryDetails
+    public class DeliveryDetailsRequestDTO
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long DeliveryIdPk { get; set; }
-
         public long? OrderIdPK { get; set; }
-        public Orders Order { get; set; } = null!;
         public decimal EstimatedDistance { get; set; }
         public decimal ActualDistance { get; set; }
         public decimal CourierLatitude { get; set; }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PasabuyAPI.Data;
@@ -11,9 +12,11 @@ using PasabuyAPI.Data;
 namespace PasabuyAPI.Migrations
 {
     [DbContext(typeof(PasabuyDbContext))]
-    partial class PasabuyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250929030938_RefinedOrdersModel1")]
+    partial class RefinedOrdersModel1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,22 +33,10 @@ namespace PasabuyAPI.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("DeliveryIdPk"));
 
-                    b.Property<DateTime?>("ActualDeliveryTime")
+                    b.Property<DateTime>("ActualDeliveryTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("ActualDistance")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("CourierLatitude")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("CourierLongitude")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("CustomerLatitude")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("CustomerLongitude")
                         .HasColumnType("numeric");
 
                     b.Property<decimal>("DeliveryFee")
