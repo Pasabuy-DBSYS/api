@@ -20,7 +20,7 @@ namespace PasabuyAPI.DTOs.Responses
         public bool IsActive { get; set; } = true;
 
         // Use DTOs inside DTOs — do NOT reference EF entity types here (avoid Users/Orders model classes).
-        public List<OrderResponseDTO> CustomerOrders { get; set; } = [];
-        public List<OrderResponseDTO> CourierOrders { get; set; } = [];
+        // public List<OrderResponseDTO> CustomerOrders { get; set; } = [];
+        // public List<OrderResponseDTO> CourierOrders { get; set; } = [];
     }
 }

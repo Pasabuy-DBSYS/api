@@ -1,5 +1,6 @@
 using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.DTOs.Responses;
+using PasabuyAPI.Enums;
 using PasabuyAPI.Models;
 
 namespace PasabuyAPI.Services.Interfaces
@@ -9,5 +10,9 @@ namespace PasabuyAPI.Services.Interfaces
         Task<List<OrderResponseDTO>> GetOrdersAsync();
         Task<OrderResponseDTO?> GetOrderByOrderId(long id);
         Task<OrderResponseDTO> CreateOrder(OrderRequestDTO orderData);
+        Task<OrderResponseDTO> AcceptOrderAsync(DeliveryDetailsRequestDTO deliveryDetailsRequestDTO, long orderId, long courierId);
+        Task<OrderResponseDTO> UpdateStatusAsync(long orderId, Status status);
+        Task<List<OrderResponseDTO>> GetAllOrdersByStatus(Status status);
+        Task<List<OrderResponseDTO>> GetAllOrdersByUserId(long userId);
     }
 }

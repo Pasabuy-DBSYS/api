@@ -22,8 +22,6 @@ namespace PasabuyAPI.Configurations.Mapping
                 .Map(dest => dest.CreatedAt, src => src.CreatedAt)
                 .Map(dest => dest.UpdatedAt, src => src.UpdatedAt)
                 .Map(dest => dest.IsActive, src => src.IsActive)
-                .Map(dest => dest.CustomerOrders, src => src.CustomerOrders)
-                .Map(dest => dest.CourierOrders, src => src.CourierOrders)
                 .IgnoreNullValues(true);
 
             TypeAdapterConfig<UserRequestDTO, Users>.NewConfig()
@@ -44,7 +42,8 @@ namespace PasabuyAPI.Configurations.Mapping
                 .Map(dest => dest.CustomerName, src => src.Customer.Name) // Map customer name
                 .Map(dest => dest.CourierName, src => src.Courier != null ? src.Courier.Name : null) // Handle nullable Courier
                 .Map(dest => dest.Created_at, src => src.Created_at)
-                .Map(dest => dest.Updated_at, src => src.Updated_at);
+                .Map(dest => dest.Updated_at, src => src.Updated_at)
+                .Map(dest => dest.DeliveryDetailsDTO, src => src.DeliveryDetails);
         }
     }
 }

@@ -22,10 +22,12 @@ builder.Services.AddDbContext<PasabuyDbContext>(options =>
 // Dependency Injections [Repositories]
 builder.Services.AddScoped<IUserRespository, UserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IDeliveryDetailsRepository, DeliveryDetailsRepository>();
 
 // Dependency Injections [Services]
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IDeliveryDetailsService, DeliveryDetailsService>();
 
 
 // Mappers
