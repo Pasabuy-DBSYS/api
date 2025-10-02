@@ -44,12 +44,14 @@ namespace PasabuyAPI.Repositories.Implementations
                 .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
                 ?? throw new Exception($"Order with ID {orderId} not found");
 
+            if (trackedOrder.Status != Status.PENDING) throw new Exception($"Cannot accept order");
+
             // Load the courier from Users table
             var trackedCourier = await _context.Users
                 .FirstOrDefaultAsync(u => u.UserIdPK == courierId)
                 ?? throw new Exception($"Courier with ID {courierId} not found");
 
-            //Update Order Status
+            // Update Order Status
             trackedOrder.Status = Enums.Status.ACCEPTED;
 
             // Update courier fields
@@ -57,7 +59,7 @@ namespace PasabuyAPI.Repositories.Implementations
             trackedOrder.Courier = trackedCourier;
 
             // Attach new delivery details
-            deliveryDetails.OrderIdPK = trackedOrder.OrderIdPK;
+            deliveryDetails.OrderIdFK = trackedOrder.OrderIdPK;
             trackedOrder.DeliveryDetails = deliveryDetails;
             _context.DeliveryDetails.Add(deliveryDetails);
 

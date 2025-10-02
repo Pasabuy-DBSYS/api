@@ -9,7 +9,7 @@ namespace PasabuyAPI.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long DeliveryIdPk { get; set; }
 
-        public long? OrderIdPK { get; set; }
+        public long? OrderIdFK { get; set; }
         public Orders Order { get; set; } = null!;
         public decimal EstimatedDistance { get; set; }
         public decimal ActualDistance { get; set; }

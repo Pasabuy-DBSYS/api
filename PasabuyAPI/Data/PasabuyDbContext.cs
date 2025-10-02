@@ -28,7 +28,7 @@ namespace PasabuyAPI.Data
             modelBuilder.Entity<Orders>()
                 .HasOne(o => o.DeliveryDetails)
                 .WithOne(d => d.Order)
-                .HasForeignKey<DeliveryDetails>(d => d.OrderIdPK)
+                .HasForeignKey<DeliveryDetails>(d => d.OrderIdFK)
                 .IsRequired(false);
         }
     }

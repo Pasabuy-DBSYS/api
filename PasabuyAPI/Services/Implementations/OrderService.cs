@@ -10,7 +10,7 @@ namespace PasabuyAPI.Services.Implementations;
 
 public class OrderService(IOrderRepository orderRepository) : IOrderService
 {
-    public async Task<OrderResponseDTO?> AcceptOrderAsync(DeliveryDetailsRequestDTO deliveryDetailsRequestDTO, long orderId, long courierId)
+    public async Task<OrderResponseDTO> AcceptOrderAsync(DeliveryDetailsRequestDTO deliveryDetailsRequestDTO, long orderId, long courierId)
     {
         var deliveryDetails = deliveryDetailsRequestDTO.Adapt<DeliveryDetails>();
         var response = await orderRepository.AcceptOrder(orderId, courierId, deliveryDetails);
