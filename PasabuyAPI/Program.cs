@@ -8,11 +8,12 @@ using PasabuyAPI.Services.Implementations;
 using System.Text.Json.Serialization;
 using PasabuyAPI.Configurations.Mapping;
 using Mapster;
+using PasabuyAPI.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
-builder.Services.AddControllers().AddJsonOptions(x => 
+builder.Services.AddControllers().AddJsonOptions(x =>
         x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
     
 builder.Services.AddDbContext<PasabuyDbContext>(options =>
@@ -46,6 +47,20 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// SignalR Service
+builder.Services.AddSignalR();
+
+// ✅ Add CORS (for frontend connection)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy
+            .WithOrigins("http://localhost:5173") // React frontend URL
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
+});
+
 builder.Services.AddMvc(options =>
 {
    options.SuppressAsyncSuffixInActionNames = false;
@@ -67,5 +82,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<OrdersHub>("/ordersHub"); // hub endpoint
+app.UseCors("AllowFrontend");
 
 app.Run();

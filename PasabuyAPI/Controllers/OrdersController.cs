@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.Enums;
+using PasabuyAPI.Hubs;
 using PasabuyAPI.Models;
 using PasabuyAPI.Services.Interfaces;
 
@@ -9,21 +11,20 @@ namespace PasabuyAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OrdersController(IOrderService orderService) : ControllerBase
+    public class OrdersController(IOrderService orderService, IHubContext<OrdersHub> hubContext) : ControllerBase
     {
-        private readonly IOrderService _orderService = orderService;
 
         [HttpGet]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersAsync()
         {
-            List<OrderResponseDTO> orders = await _orderService.GetOrdersAsync();
+            List<OrderResponseDTO> orders = await orderService.GetOrdersAsync();
             return Ok(orders);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderResponseDTO>> GetOrderByIdAsync(long id)
         {
-            OrderResponseDTO? response = await _orderService.GetOrderByOrderId(id);
+            OrderResponseDTO? response = await orderService.GetOrderByOrderId(id);
             if (response == null) return NotFound($"Order id [{id}] not found");
 
             return Ok(response);
@@ -32,7 +33,7 @@ namespace PasabuyAPI.Controllers
         [HttpGet("status/{status}")]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByStatus(Status status)
         {
-            List<OrderResponseDTO> pendingOrders = await _orderService.GetAllOrdersByStatus(status);
+            List<OrderResponseDTO> pendingOrders = await orderService.GetAllOrdersByStatus(status);
 
             return Ok(pendingOrders);
         }
@@ -40,7 +41,7 @@ namespace PasabuyAPI.Controllers
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByUserId(long userId)
         {
-            List<OrderResponseDTO> ordersByUser = await _orderService.GetAllOrdersByUserId(userId);
+            List<OrderResponseDTO> ordersByUser = await orderService.GetAllOrdersByUserId(userId);
 
             return Ok(ordersByUser);
         }
@@ -49,22 +50,23 @@ namespace PasabuyAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<OrderResponseDTO>> CreateOrderAsync([FromBody] OrderRequestDTO orderRequest)
         {
-            OrderResponseDTO response = await _orderService.CreateOrder(orderRequest);
+            OrderResponseDTO response = await orderService.CreateOrder(orderRequest);
+
+            await hubContext.Clients.All.SendAsync("OrderCreated", response);
+
             return CreatedAtAction(
                     nameof(GetOrderByIdAsync),
                     new { id = response.OrderIdPK },
-                    new
-                    {
-                        status = "created",
-                        data = response
-                    }
+                    new { response }
                 );
         }
 
         [HttpPost("accept/{orderId}/{courierId}")]
         public async Task<ActionResult<OrderResponseDTO>> AcceptOrderAsync([FromBody] DeliveryDetailsRequestDTO deliveryDetailsRequestDTO, long orderId, long courierId)
         {
-            OrderResponseDTO responseDTO = await _orderService.AcceptOrderAsync(deliveryDetailsRequestDTO, orderId, courierId);
+            OrderResponseDTO responseDTO = await orderService.AcceptOrderAsync(deliveryDetailsRequestDTO, orderId, courierId);
+
+            await hubContext.Clients.All.SendAsync("OrderAccepted", responseDTO);
 
             return StatusCode(201, responseDTO);
         }
@@ -72,7 +74,9 @@ namespace PasabuyAPI.Controllers
         [HttpPatch("update/{orderId}")]
         public async Task<ActionResult<OrderResponseDTO>> UpdateOrderStatusAsync([FromBody] Status status, long orderId)
         {
-            OrderResponseDTO responseDTO = await _orderService.UpdateStatusAsync(orderId, status);
+            OrderResponseDTO responseDTO = await orderService.UpdateStatusAsync(orderId, status);
+
+            await hubContext.Clients.All.SendAsync("OrderStatusUpdated", responseDTO);
 
             return Ok(responseDTO);
         }
