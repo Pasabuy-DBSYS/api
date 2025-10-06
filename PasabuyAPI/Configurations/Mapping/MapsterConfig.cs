@@ -21,8 +21,8 @@ namespace PasabuyAPI.Configurations.Mapping
                 .Map(dest => dest.TotalDeliveries, src => src.TotalDeliveries)
                 .Map(dest => dest.CreatedAt, src => src.CreatedAt)
                 .Map(dest => dest.UpdatedAt, src => src.UpdatedAt)
-                .Map(dest => dest.IsActive, src => src.IsActive)
-                .IgnoreNullValues(true);
+                .Map(dest => dest.IsActive, src => src.IsActive);
+                // .IgnoreNullValues(true);
 
             TypeAdapterConfig<UserRequestDTO, Users>.NewConfig()
                 .Ignore(dest => dest.UserIdPK)

@@ -6,5 +6,6 @@ namespace PasabuyAPI.Repositories.Interfaces
     public interface IPaymentsRepository
     {
         Task<Payments> CreatePayment(Priority Urgency, decimal Distance, Payments payment);
+        Task<Payments> GetPaymentsByTransactionIdAsync(string TransactionId);
     }
 }

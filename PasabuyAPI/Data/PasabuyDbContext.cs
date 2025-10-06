@@ -8,6 +8,7 @@ namespace PasabuyAPI.Data
         public DbSet<Users> Users { get; set; }
         public DbSet<Orders> Orders { get; set; }
         public DbSet<DeliveryDetails> DeliveryDetails { get; set; }
+        public DbSet<Payments> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
