@@ -23,11 +23,13 @@ builder.Services.AddDbContext<PasabuyDbContext>(options =>
 builder.Services.AddScoped<IUserRespository, UserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IDeliveryDetailsRepository, DeliveryDetailsRepository>();
+builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>();
 
 // Dependency Injections [Services]
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IDeliveryDetailsService, DeliveryDetailsService>();
+builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 
 
 // Mappers
@@ -40,9 +42,9 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "My Web API",
+        Title = "PasaBuy API",
         Version = "v1",
-        Description = "API documentation for My Web API project"
+        Description = "API documentation for PasaBuy"
     });
 });
 

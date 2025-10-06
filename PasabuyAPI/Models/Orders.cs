@@ -16,14 +16,15 @@ namespace PasabuyAPI.Models
         public long? CourierId { get; set; }
         public Users? Courier { get; set; }
 
-        public string Description { get; set; } = string.Empty;
+        public string Request { get; set; } = string.Empty;
         [EnumDataType(typeof(Status))]
         public Status Status { get; set; }
         [EnumDataType(typeof(Priority))]
         public Priority Priority { get; set; }
         public DateTime Created_at { get; set; } = DateTime.UtcNow;
         public DateTime Updated_at { get; set; } = DateTime.UtcNow;
-        
-        public DeliveryDetails? DeliveryDetails { get; set; }
+
+        public DeliveryDetails DeliveryDetails { get; set; } = null!;
+        public Payments Payment { get; set; } = null!;
     }
 }

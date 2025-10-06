@@ -1,19 +1,39 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using PasabuyAPI.Enums;
 
 namespace PasabuyAPI.Models
 {
     public class Payments
     {
-        public long PaymentId { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long PaymentIdPK { get; set; }
         public long OrderIdFK { get; set; }
-        public decimal BaseAmount { get; set; }
+        public Orders Order { get; set; } = null!;
+        public Guid TransactionId { get; set; } = Guid.NewGuid();
+
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal BaseFee { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? UrgencyFee { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
         public decimal DeliveryFee { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
         public decimal? TipAmount { get; set; }
-        public decimal TotalAmount { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? ItemsFee { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? TotalAmount { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
-        public Guid TransactionId { get; set; }
-        public DateTime PaidAt { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime? PaidAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

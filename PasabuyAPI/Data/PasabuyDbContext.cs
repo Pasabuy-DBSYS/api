@@ -29,7 +29,19 @@ namespace PasabuyAPI.Data
                 .HasOne(o => o.DeliveryDetails)
                 .WithOne(d => d.Order)
                 .HasForeignKey<DeliveryDetails>(d => d.OrderIdFK)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
+
+            modelBuilder.Entity<Orders>()
+                .HasOne(o => o.Payment)
+                .WithOne(p => p.Order)
+                .HasForeignKey<Payments>(p => p.OrderIdFK)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
+
+            modelBuilder.Entity<Payments>()
+                .HasIndex(p => p.TransactionId)
+                .IsUnique();
         }
     }
 }

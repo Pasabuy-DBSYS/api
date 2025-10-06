@@ -9,7 +9,7 @@ namespace PasabuyAPI.Services.Interfaces
     {
         Task<List<OrderResponseDTO>> GetOrdersAsync();
         Task<OrderResponseDTO?> GetOrderByOrderId(long id);
-        Task<OrderResponseDTO> CreateOrder(OrderRequestDTO orderData);
+        Task<OrderResponseDTO> CreateOrder(CreateOrderDTO orderData);
         Task<OrderResponseDTO> AcceptOrderAsync(DeliveryDetailsRequestDTO deliveryDetailsRequestDTO, long orderId, long courierId);
         Task<OrderResponseDTO> UpdateStatusAsync(long orderId, Status status);
         Task<List<OrderResponseDTO>> GetAllOrdersByStatus(Status status);

@@ -15,6 +15,7 @@ namespace PasabuyAPI.Repositories.Implementations
                 .Include(o => o.Courier)
                 .Include(o => o.Customer)
                 .Include(o => o.DeliveryDetails)
+                .Include(o => o.Payment)
                 .ToListAsync();
         }
         public async Task<Orders?> GetOrderByOrderId(long id)
@@ -23,6 +24,7 @@ namespace PasabuyAPI.Repositories.Implementations
                 .Include(o => o.Courier)
                 .Include(o => o.Customer)
                 .Include(o => o.DeliveryDetails)
+                .Include(o => o.Payment)
                 .FirstOrDefaultAsync(o => o.OrderIdPK == id);
         }
         public async Task<Orders> CreateOrder(Orders orderData)
@@ -70,6 +72,7 @@ namespace PasabuyAPI.Repositories.Implementations
                 .Include(o => o.Courier)
                 .Include(o => o.Customer)
                 .Include(o => o.DeliveryDetails)
+                .Include(o => o.Payment)
                 .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
                 ?? trackedOrder;
         }
@@ -100,6 +103,7 @@ namespace PasabuyAPI.Repositories.Implementations
                             .Where(o => o.Status == status) // 👈 filter only pending
                             .Include(o => o.Customer)               // optional: eager load related data
                             .Include(o => o.DeliveryDetails)        // optional: if you need delivery info
+                            .Include(o => o.Payment)
                             .ToListAsync();
         }
 
@@ -109,6 +113,7 @@ namespace PasabuyAPI.Repositories.Implementations
                             .Where(o => o.CustomerId == userId)
                             .Include(o => o.Customer)               // optional: eager load related data
                             .Include(o => o.DeliveryDetails)        // optional: if you need delivery info
+                            .Include(o => o.Payment)
                             .ToListAsync();
         }
     }

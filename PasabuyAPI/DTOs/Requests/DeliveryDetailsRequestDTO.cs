@@ -2,7 +2,6 @@ namespace PasabuyAPI.DTOs.Requests
 {
     public class DeliveryDetailsRequestDTO
     {
-        public long DeliveryIdPk { get; set; }
         public long? OrderIdFK { get; set; }
         public decimal EstimatedDistance { get; set; }
         public decimal ActualDistance { get; set; }
