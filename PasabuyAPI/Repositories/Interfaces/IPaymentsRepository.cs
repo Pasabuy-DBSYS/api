@@ -7,5 +7,7 @@ namespace PasabuyAPI.Repositories.Interfaces
     {
         Task<Payments> CreatePayment(Priority Urgency, decimal Distance, Payments payment);
         Task<Payments> GetPaymentsByTransactionIdAsync(string TransactionId);
+        Task<Payments?> AcceptProposedItemsFeeAsync(long orderId);
+        Task<Payments?> ProposeItemsFeeAsync(long orderId, decimal proposedItemsFee);
     }
 }

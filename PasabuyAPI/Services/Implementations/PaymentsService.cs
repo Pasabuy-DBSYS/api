@@ -9,15 +9,30 @@ namespace PasabuyAPI.Services.Implementations
 {
     public class PaymentsService(IPaymentsRepository paymentsRepository) : IPaymentsService
     {
-        private readonly decimal BASE_FEE = 10.0m;
-        private readonly decimal URGENCY_FEE = 5.0m;
-        private readonly decimal FEE_PER_KILOMETER = 5.0m;
 
         public async Task<PaymentsResponseDTO> GetPaymentByTransactionId(string transactionId)
         {
             Payments payment = await paymentsRepository.GetPaymentsByTransactionIdAsync(transactionId);
 
             return payment.Adapt<PaymentsResponseDTO>();
+        }
+
+        public async Task<PaymentsResponseDTO?> ProposeItemsFeeAsync(long orderId, decimal proposedItemsFee)
+        {
+            Payments? entity = await paymentsRepository.ProposeItemsFeeAsync(orderId, proposedItemsFee);
+
+            if (entity is null) return null;
+
+            return entity.Adapt<PaymentsResponseDTO>();
+        }
+
+        public async Task<PaymentsResponseDTO?> AcceptProposedItemsFeeAsync(long orderId)
+        {
+            Payments? entity = await paymentsRepository.AcceptProposedItemsFeeAsync(orderId);
+
+            if (entity is null) return null;
+
+            return entity.Adapt<PaymentsResponseDTO>();
         }
     }
 }

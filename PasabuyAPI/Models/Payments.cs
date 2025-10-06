@@ -17,19 +17,21 @@ namespace PasabuyAPI.Models
         public decimal BaseFee { get; set; }
 
         [Column(TypeName = "decimal(10,2)")]
-        public decimal? UrgencyFee { get; set; }
+        public decimal? UrgencyFee { get; set; } = 0;
 
         [Column(TypeName = "decimal(10,2)")]
         public decimal DeliveryFee { get; set; }
 
         [Column(TypeName = "decimal(10,2)")]
-        public decimal? TipAmount { get; set; }
+        public decimal? TipAmount { get; set; } = 0;
 
         [Column(TypeName = "decimal(10,2)")]
-        public decimal? ItemsFee { get; set; }
+        public decimal? ItemsFee { get; set; } = 0;
+        public decimal? ProposedItemsFee { get; set; } = 0;
 
         [Column(TypeName = "decimal(10,2)")]
-        public decimal? TotalAmount { get; set; }
+        public decimal? TotalAmount { get; set; } = 0;
+        public bool IsItemsFeeConfirmed { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public DateTime? PaidAt { get; set; }
