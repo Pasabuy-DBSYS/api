@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.Enums;
+using PasabuyAPI.Hubs;
 using PasabuyAPI.Models;
 using PasabuyAPI.Services.Interfaces;
 
@@ -9,7 +11,7 @@ namespace PasabuyAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OrdersController(IOrderService orderService) : ControllerBase
+    public class OrdersController(IOrderService orderService, IHubContext<OrdersHub> hubContext) : ControllerBase
     {
 
         [HttpGet]
@@ -49,14 +51,13 @@ namespace PasabuyAPI.Controllers
         public async Task<ActionResult<OrderResponseDTO>> CreateOrderAsync([FromBody] CreateOrderDTO orderRequest)
         {
             OrderResponseDTO response = await orderService.CreateOrder(orderRequest);
+
+            await hubContext.Clients.All.SendAsync("OrderCreated", response);
+
             return CreatedAtAction(
                     nameof(GetOrderByIdAsync),
                     new { id = response.OrderIdPK },
-                    new
-                    {
-                        status = "created",
-                        data = response
-                    }
+                    new { response }
                 );
         }
 
@@ -65,6 +66,8 @@ namespace PasabuyAPI.Controllers
         {
             OrderResponseDTO responseDTO = await orderService.AcceptOrderAsync(deliveryDetailsRequestDTO, orderId, courierId);
 
+            await hubContext.Clients.All.SendAsync("OrderAccepted", responseDTO);
+
             return StatusCode(201, responseDTO);
         }
 
@@ -72,6 +75,8 @@ namespace PasabuyAPI.Controllers
         public async Task<ActionResult<OrderResponseDTO>> UpdateOrderStatusAsync([FromBody] Status status, long orderId)
         {
             OrderResponseDTO responseDTO = await orderService.UpdateStatusAsync(orderId, status);
+
+            await hubContext.Clients.All.SendAsync("OrderStatusUpdated", responseDTO);
 
             return Ok(responseDTO);
         }
