@@ -29,7 +29,7 @@ namespace PasabuyAPI.Controllers
         }
 
         [HttpPatch("propose/accept/{orderId}")]
-        public async Task<ActionResult<PaymentsResponseDTO>> AcceptProposedItemsFee(long orderId)
+        public async Task<ActionResult<PaymentsResponseDTO>> AcceptProposedItemsFeeAsync(long orderId)
         {
             PaymentsResponseDTO? responseDTO = await paymentsService.AcceptProposedItemsFeeAsync(orderId);
             
