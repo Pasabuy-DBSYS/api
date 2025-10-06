@@ -48,7 +48,7 @@ namespace PasabuyAPI.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult<OrderResponseDTO>> CreateOrderAsync([FromBody] OrderRequestDTO orderRequest)
+        public async Task<ActionResult<OrderResponseDTO>> CreateOrderAsync([FromBody] CreateOrderDTO orderRequest)
         {
             OrderResponseDTO response = await orderService.CreateOrder(orderRequest);
 

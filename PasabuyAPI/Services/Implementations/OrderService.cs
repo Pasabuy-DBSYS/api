@@ -8,20 +8,50 @@ using PasabuyAPI.Services.Interfaces;
 
 namespace PasabuyAPI.Services.Implementations;
 
-public class OrderService(IOrderRepository orderRepository) : IOrderService
+public class OrderService(IOrderRepository orderRepository, IDeliveryDetailsRepository deliveryDetailsRepository, IPaymentsRepository paymentsRepository) : IOrderService
 {
-    public async Task<OrderResponseDTO?> AcceptOrderAsync(DeliveryDetailsRequestDTO deliveryDetailsRequestDTO, long orderId, long courierId)
+    public async Task<OrderResponseDTO> AcceptOrderAsync(DeliveryDetailsRequestDTO deliveryDetailsRequestDTO, long orderId, long courierId)
     {
         var deliveryDetails = deliveryDetailsRequestDTO.Adapt<DeliveryDetails>();
         var response = await orderRepository.AcceptOrder(orderId, courierId, deliveryDetails);
+
         return response.Adapt<OrderResponseDTO>();
     }
 
 
-    public async Task<OrderResponseDTO> CreateOrder(OrderRequestDTO orderData)
+    public async Task<OrderResponseDTO> CreateOrder(CreateOrderDTO orderData)
     {
-        Orders order = await orderRepository.CreateOrder(orderData.Adapt<Orders>());
-        return order.Adapt<OrderResponseDTO>();
+        Orders order = await orderRepository.CreateOrder(new()
+        {
+            CustomerId = orderData.CustomerId,
+            Request = orderData.Request,
+            Status = orderData.Status,
+            Priority = orderData.Priority,
+        });
+
+        DeliveryDetails deliveryDetails = await deliveryDetailsRepository.CreateDeliveryDetails(new()
+        {
+            OrderIdFK = order.OrderIdPK,
+            LocationLatitude = orderData.LocationLatitude,
+            LocationLongitude = orderData.LocationLongitude,
+            CustomerLatitude = orderData.CustomerLatitude,
+            CustomerLongitude = orderData.CustomerLongitude,
+            ActualDistance = orderData.DeliveryDistance,
+            DeliveryNotes = orderData.DeliveryNotes
+        });
+
+        Payments payments = await paymentsRepository.CreatePayment(order.Priority, orderData.DeliveryDistance, new()
+        {
+            OrderIdFK = order.OrderIdPK,
+            PaymentMethod = PaymentMethod.CASH,
+            PaymentStatus = PaymentStatus.PENDING
+        });
+
+        var response = order.Adapt<OrderResponseDTO>();
+        response.PaymentsResponseDTO = payments.Adapt<PaymentsResponseDTO>();
+        response.DeliveryDetailsDTO = deliveryDetails.Adapt<DeliveryDetailsResponseDTO>();
+
+        return response;
     }
 
     public async Task<OrderResponseDTO?> GetOrderByOrderId(long id)

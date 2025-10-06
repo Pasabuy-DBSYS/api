@@ -12,10 +12,10 @@ namespace PasabuyAPI.Services.Implementations
     {
         public async Task<DeliveryDetailsResponseDTO> CreateDeliveryDetails(DeliveryDetailsRequestDTO deliveryDetailsRequestDTO)
         {
-            if (deliveryDetailsRequestDTO.OrderIdPK is not null)
+            if (deliveryDetailsRequestDTO.OrderIdFK is not null)
             {
-                var order = await orderRepository.GetOrderByOrderId(deliveryDetailsRequestDTO.OrderIdPK.Value) ??
-                throw new Exception($"Order with ID {deliveryDetailsRequestDTO.OrderIdPK.Value} not found.");
+                var order = await orderRepository.GetOrderByOrderId(deliveryDetailsRequestDTO.OrderIdFK.Value) ??
+                throw new Exception($"Order with ID {deliveryDetailsRequestDTO.OrderIdFK.Value} not found.");
             }
 
             DeliveryDetails entity = deliveryDetailsRequestDTO.Adapt<DeliveryDetails>();

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using PasabuyAPI.Data;
 using PasabuyAPI.Models;
 using PasabuyAPI.Repositories.Interfaces;
@@ -11,6 +12,12 @@ namespace PasabuyAPI.Repositories.Implementations
             await context.AddAsync(deliveryDetails);
             await context.SaveChangesAsync();
             return deliveryDetails;
+        }
+
+        public async Task<DeliveryDetails?> FindDeliveryDetailsByOrderId(long orderId)
+        {
+            return await context.DeliveryDetails
+                                .FirstOrDefaultAsync(d => d.OrderIdFK == orderId);
         }
     }
 }

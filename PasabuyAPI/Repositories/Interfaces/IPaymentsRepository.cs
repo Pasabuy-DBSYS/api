@@ -1,0 +1,10 @@
+using PasabuyAPI.Enums;
+using PasabuyAPI.Models;
+
+namespace PasabuyAPI.Repositories.Interfaces
+{
+    public interface IPaymentsRepository
+    {
+        Task<Payments> CreatePayment(Priority Urgency, decimal Distance, Payments payment);
+    }
+}

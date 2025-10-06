@@ -15,6 +15,7 @@ namespace PasabuyAPI.Repositories.Implementations
                 .Include(o => o.Courier)
                 .Include(o => o.Customer)
                 .Include(o => o.DeliveryDetails)
+                .Include(o => o.Payment)
                 .ToListAsync();
         }
         public async Task<Orders?> GetOrderByOrderId(long id)
@@ -23,6 +24,7 @@ namespace PasabuyAPI.Repositories.Implementations
                 .Include(o => o.Courier)
                 .Include(o => o.Customer)
                 .Include(o => o.DeliveryDetails)
+                .Include(o => o.Payment)
                 .FirstOrDefaultAsync(o => o.OrderIdPK == id);
         }
         public async Task<Orders> CreateOrder(Orders orderData)
@@ -44,12 +46,14 @@ namespace PasabuyAPI.Repositories.Implementations
                 .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
                 ?? throw new Exception($"Order with ID {orderId} not found");
 
+            if (trackedOrder.Status != Status.PENDING) throw new Exception($"Cannot accept order");
+
             // Load the courier from Users table
             var trackedCourier = await _context.Users
                 .FirstOrDefaultAsync(u => u.UserIdPK == courierId)
                 ?? throw new Exception($"Courier with ID {courierId} not found");
 
-            //Update Order Status
+            // Update Order Status
             trackedOrder.Status = Enums.Status.ACCEPTED;
 
             // Update courier fields
@@ -57,7 +61,7 @@ namespace PasabuyAPI.Repositories.Implementations
             trackedOrder.Courier = trackedCourier;
 
             // Attach new delivery details
-            deliveryDetails.OrderIdPK = trackedOrder.OrderIdPK;
+            deliveryDetails.OrderIdFK = trackedOrder.OrderIdPK;
             trackedOrder.DeliveryDetails = deliveryDetails;
             _context.DeliveryDetails.Add(deliveryDetails);
 
@@ -68,6 +72,7 @@ namespace PasabuyAPI.Repositories.Implementations
                 .Include(o => o.Courier)
                 .Include(o => o.Customer)
                 .Include(o => o.DeliveryDetails)
+                .Include(o => o.Payment)
                 .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
                 ?? trackedOrder;
         }
@@ -98,6 +103,7 @@ namespace PasabuyAPI.Repositories.Implementations
                             .Where(o => o.Status == status) // 👈 filter only pending
                             .Include(o => o.Customer)               // optional: eager load related data
                             .Include(o => o.DeliveryDetails)        // optional: if you need delivery info
+                            .Include(o => o.Payment)
                             .ToListAsync();
         }
 
@@ -107,6 +113,7 @@ namespace PasabuyAPI.Repositories.Implementations
                             .Where(o => o.CustomerId == userId)
                             .Include(o => o.Customer)               // optional: eager load related data
                             .Include(o => o.DeliveryDetails)        // optional: if you need delivery info
+                            .Include(o => o.Payment)
                             .ToListAsync();
         }
     }

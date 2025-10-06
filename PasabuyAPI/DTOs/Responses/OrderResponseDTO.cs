@@ -10,11 +10,12 @@ namespace PasabuyAPI.DTOs.Responses
         public string CustomerName { get; set; } = string.Empty;
         public long CourierId { get; set; }
         public string CourierName { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
+        public string Request { get; set; } = string.Empty;
         public Status Status { get; set; }
         public Priority Priority { get; set; }
         public DateTime Created_at { get; set; }
-        public DateTime Updated_at { get; set; } 
-        public DeliveryDetailsResponseDTO? DeliveryDetailsDTO { get; set; }
+        public DateTime Updated_at { get; set; }
+        public DeliveryDetailsResponseDTO DeliveryDetailsDTO { get; set; } = null!;
+        public PaymentsResponseDTO PaymentsResponseDTO { get; set; } = null!;
     }
 }

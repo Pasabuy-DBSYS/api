@@ -34,22 +34,22 @@ namespace PasabuyAPI.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("ActualDistance")
-                        .HasColumnType("numeric");
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime?>("ActualPickupTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("CourierLatitude")
-                        .HasColumnType("numeric");
+                        .HasColumnType("decimal(9,6)");
 
                     b.Property<decimal>("CourierLongitude")
-                        .HasColumnType("numeric");
+                        .HasColumnType("decimal(9,6)");
 
                     b.Property<decimal>("CustomerLatitude")
-                        .HasColumnType("numeric");
+                        .HasColumnType("decimal(9,6)");
 
                     b.Property<decimal>("CustomerLongitude")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("DeliveryFee")
-                        .HasColumnType("numeric");
+                        .HasColumnType("decimal(9,6)");
 
                     b.Property<string>("DeliveryNotes")
                         .IsRequired()
@@ -58,15 +58,18 @@ namespace PasabuyAPI.Migrations
                     b.Property<DateTime>("EstimatedDeliveryTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("EstimatedDistance")
-                        .HasColumnType("numeric");
+                    b.Property<decimal>("LocationLatitude")
+                        .HasColumnType("decimal(9,6)");
 
-                    b.Property<long?>("OrderIdPK")
+                    b.Property<decimal>("LocationLongitude")
+                        .HasColumnType("decimal(9,6)");
+
+                    b.Property<long>("OrderIdFK")
                         .HasColumnType("bigint");
 
                     b.HasKey("DeliveryIdPk");
 
-                    b.HasIndex("OrderIdPK")
+                    b.HasIndex("OrderIdFK")
                         .IsUnique();
 
                     b.ToTable("DeliveryDetails");
@@ -89,12 +92,12 @@ namespace PasabuyAPI.Migrations
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Request")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -109,6 +112,64 @@ namespace PasabuyAPI.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("PasabuyAPI.Models.Payments", b =>
+                {
+                    b.Property<long>("PaymentIdPK")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PaymentIdPK"));
+
+                    b.Property<decimal>("BaseFee")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("DeliveryFee")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal?>("ItemsFee")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<long>("OrderIdFK")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("TipAmount")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal?>("TotalAmount")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("UrgencyFee")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.HasKey("PaymentIdPK");
+
+                    b.HasIndex("OrderIdFK")
+                        .IsUnique();
+
+                    b.HasIndex("TransactionId")
+                        .IsUnique();
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("PasabuyAPI.Models.Users", b =>
@@ -181,7 +242,8 @@ namespace PasabuyAPI.Migrations
                 {
                     b.HasOne("PasabuyAPI.Models.Orders", "Order")
                         .WithOne("DeliveryDetails")
-                        .HasForeignKey("PasabuyAPI.Models.DeliveryDetails", "OrderIdPK");
+                        .HasForeignKey("PasabuyAPI.Models.DeliveryDetails", "OrderIdFK")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Order");
                 });
@@ -204,9 +266,21 @@ namespace PasabuyAPI.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("PasabuyAPI.Models.Payments", b =>
+                {
+                    b.HasOne("PasabuyAPI.Models.Orders", "Order")
+                        .WithOne("Payment")
+                        .HasForeignKey("PasabuyAPI.Models.Payments", "OrderIdFK")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("PasabuyAPI.Models.Orders", b =>
                 {
                     b.Navigation("DeliveryDetails");
+
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("PasabuyAPI.Models.Users", b =>

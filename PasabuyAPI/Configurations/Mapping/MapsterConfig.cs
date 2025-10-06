@@ -34,7 +34,7 @@ namespace PasabuyAPI.Configurations.Mapping
 
             TypeAdapterConfig<Orders, OrderResponseDTO>.NewConfig()
                 .Map(dest => dest.OrderIdPK, src => src.OrderIdPK)
-                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.Request, src => src.Request)
                 .Map(dest => dest.Status, src => src.Status.ToString())
                 .Map(dest => dest.Priority, src => src.Priority.ToString())
                 .Map(dest => dest.CustomerId, src => src.CustomerId)
@@ -43,7 +43,8 @@ namespace PasabuyAPI.Configurations.Mapping
                 .Map(dest => dest.CourierName, src => src.Courier != null ? src.Courier.Name : null) // Handle nullable Courier
                 .Map(dest => dest.Created_at, src => src.Created_at)
                 .Map(dest => dest.Updated_at, src => src.Updated_at)
-                .Map(dest => dest.DeliveryDetailsDTO, src => src.DeliveryDetails);
+                .Map(dest => dest.DeliveryDetailsDTO, src => src.DeliveryDetails)
+                .Map(dest => dest.PaymentsResponseDTO, src => src.Payment);
         }
     }
 }
