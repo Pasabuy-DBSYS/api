@@ -39,8 +39,6 @@ namespace PasabuyAPI.Configurations.Mapping
                 .Map(dest => dest.Priority, src => src.Priority.ToString())
                 .Map(dest => dest.CustomerId, src => src.CustomerId)
                 .Map(dest => dest.CourierId, src => src.CourierId)
-                .Map(dest => dest.CustomerName, src => src.Customer.Name) // Map customer name
-                .Map(dest => dest.CourierName, src => src.Courier != null ? src.Courier.Name : null) // Handle nullable Courier
                 .Map(dest => dest.Created_at, src => src.Created_at)
                 .Map(dest => dest.Updated_at, src => src.Updated_at)
                 .Map(dest => dest.DeliveryDetailsDTO, src => src.DeliveryDetails)

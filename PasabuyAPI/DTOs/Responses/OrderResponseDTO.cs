@@ -7,10 +7,9 @@ namespace PasabuyAPI.DTOs.Responses
     {
         public long OrderIdPK { get; set; }
         public long CustomerId { get; set; }
-        public string CustomerName { get; set; } = string.Empty;
         public long CourierId { get; set; }
-        public string CourierName { get; set; } = string.Empty;
         public string Request { get; set; } = string.Empty;
+        
         public Status Status { get; set; }
         public Priority Priority { get; set; }
         public DateTime Created_at { get; set; }

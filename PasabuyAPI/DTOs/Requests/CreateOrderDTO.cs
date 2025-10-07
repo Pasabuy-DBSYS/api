@@ -7,6 +7,7 @@ namespace PasabuyAPI.DTOs.Requests
     {
         public long CustomerId { get; set; }
         public string Request { get; set; } = string.Empty;
+        public decimal? TipFee { get; set; }
         public Status Status { get; set; }
         public Priority Priority { get; set; }
         public decimal LocationLatitude { get; set; }
