@@ -17,5 +17,25 @@ namespace PasabuyAPI.Controllers
 
             return Ok(responseDTO);
         }
+
+        [HttpPost("propose/{orderId}")]
+        public async Task<ActionResult<PaymentsResponseDTO>> ProposeItemsFeeAsync(long orderId, [FromBody] long itemsFee)
+        {
+            PaymentsResponseDTO? response = await paymentsService.ProposeItemsFeeAsync(orderId, itemsFee);
+
+            if (response is null) return NotFound($"Order Id {orderId} is not found");
+
+            return Ok(response);
+        }
+
+        [HttpPatch("propose/accept/{orderId}")]
+        public async Task<ActionResult<PaymentsResponseDTO>> AcceptProposedItemsFeeAsync(long orderId)
+        {
+            PaymentsResponseDTO? responseDTO = await paymentsService.AcceptProposedItemsFeeAsync(orderId);
+            
+            if (responseDTO is null) return NotFound($"Order Id {orderId} is not found");
+
+            return Ok(responseDTO);
+        }
     }
 }

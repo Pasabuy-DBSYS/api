@@ -10,10 +10,13 @@ namespace PasabuyAPI.Services.Implementations;
 
 public class OrderService(IOrderRepository orderRepository, IDeliveryDetailsRepository deliveryDetailsRepository, IPaymentsRepository paymentsRepository) : IOrderService
 {
-    public async Task<OrderResponseDTO> AcceptOrderAsync(DeliveryDetailsRequestDTO deliveryDetailsRequestDTO, long orderId, long courierId)
+    public async Task<OrderResponseDTO> AcceptOrderAsync(AcceptOrderDTO acceptOrderDTO, long orderId)
     {
-        var deliveryDetails = deliveryDetailsRequestDTO.Adapt<DeliveryDetails>();
-        var response = await orderRepository.AcceptOrder(orderId, courierId, deliveryDetails);
+        var response = await orderRepository.AcceptOrder(orderId, acceptOrderDTO.CourierId, new()
+        {
+            CourierLatitude = acceptOrderDTO.CourierLatitude,
+            CourierLongitude = acceptOrderDTO.CourierLongitude
+        });
 
         return response.Adapt<OrderResponseDTO>();
     }
@@ -78,9 +81,9 @@ public class OrderService(IOrderRepository orderRepository, IDeliveryDetailsRepo
         return orders.Adapt<List<OrderResponseDTO>>();
     }
 
-    public async Task<List<OrderResponseDTO>> GetAllOrdersByUserId(long userId)
+    public async Task<List<OrderResponseDTO>> GetAllOrdersByCustomerIdAsync(long customerId)
     {
-        List<Orders> ordersByUserId = await orderRepository.GetAllOrdersByUserId(userId);
+        List<Orders> ordersByUserId = await orderRepository.GetAllOrdersByCustomerId(customerId);
 
         return ordersByUserId.Adapt<List<OrderResponseDTO>>();
     }

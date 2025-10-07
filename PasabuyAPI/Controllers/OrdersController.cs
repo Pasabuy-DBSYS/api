@@ -38,10 +38,10 @@ namespace PasabuyAPI.Controllers
             return Ok(pendingOrders);
         }
 
-        [HttpGet("user/{userId}")]
-        public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByUserId(long userId)
+        [HttpGet("customer/{customerId}")]
+        public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByCustomerIdAsync(long customerId)
         {
-            List<OrderResponseDTO> ordersByUser = await orderService.GetAllOrdersByUserId(userId);
+            List<OrderResponseDTO> ordersByUser = await orderService.GetAllOrdersByCustomerIdAsync(customerId);
 
             return Ok(ordersByUser);
         }
@@ -61,10 +61,10 @@ namespace PasabuyAPI.Controllers
                 );
         }
 
-        [HttpPost("accept/{orderId}/{courierId}")]
-        public async Task<ActionResult<OrderResponseDTO>> AcceptOrderAsync([FromBody] DeliveryDetailsRequestDTO deliveryDetailsRequestDTO, long orderId, long courierId)
+        [HttpPost("accept/{orderId}")]
+        public async Task<ActionResult<OrderResponseDTO>> AcceptOrderAsync([FromBody] AcceptOrderDTO acceptOrderDTO, long orderId)
         {
-            OrderResponseDTO responseDTO = await orderService.AcceptOrderAsync(deliveryDetailsRequestDTO, orderId, courierId);
+            OrderResponseDTO responseDTO = await orderService.AcceptOrderAsync(acceptOrderDTO, orderId);
 
             await hubContext.Clients.All.SendAsync("OrderAccepted", responseDTO);
 

@@ -13,6 +13,10 @@ namespace PasabuyAPI.Repositories.Interfaces
         Task<Orders> AcceptOrder(long orderId, long courierId, DeliveryDetails deliveryDetails);
         Task<Orders> UpdateStatusAsync(long orderId, Status status);
         Task<List<Orders>> GetAllOrdersByStatus(Status status);
-        Task<List<Orders>> GetAllOrdersByUserId(long userId);
+        Task<List<Orders>> GetAllOrdersByCustomerId(long customerId);
+        Task<List<Orders>> GetAllOrdersByCourierId(long courierId);
+
+        //Helper Method
+        Task<bool> IsUserAvailable(long userId);
     }
 }

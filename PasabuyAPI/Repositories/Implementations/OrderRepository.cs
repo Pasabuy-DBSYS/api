@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PasabuyAPI.Data;
 using PasabuyAPI.Enums;
+using PasabuyAPI.Exceptions;
 using PasabuyAPI.Models;
 using PasabuyAPI.Repositories.Interfaces;
 
@@ -29,6 +30,7 @@ namespace PasabuyAPI.Repositories.Implementations
         }
         public async Task<Orders> CreateOrder(Orders orderData)
         {
+            if (!await IsUserAvailable(orderData.CustomerId)) throw new CannotCreateOrderException($"Customer Id {orderData.CustomerId} already has an active order");
             _context.Orders.Add(orderData);
             await _context.SaveChangesAsync();
             return await _context.Orders
@@ -40,34 +42,41 @@ namespace PasabuyAPI.Repositories.Implementations
 
         public async Task<Orders> AcceptOrder(long orderId, long courierId, DeliveryDetails deliveryDetails)
         {
-            // Load the existing order from the database (tracked by EF)
+            if (!await IsUserAvailable(courierId)) throw new CannotAcceptOrderException($"Courier id {courierId} already has an active order");
+            // Load the existing order and its details (both tracked by EF)
             var trackedOrder = await _context.Orders
                 .Include(o => o.DeliveryDetails)
+                .Include(o => o.Payment)
                 .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
                 ?? throw new Exception($"Order with ID {orderId} not found");
 
-            if (trackedOrder.Status != Status.PENDING) throw new Exception($"Cannot accept order");
+            if (trackedOrder.Status != Status.PENDING)
+                throw new CannotAcceptOrderException($"Order Id {orderId} is not {Status.PENDING}");
+                
+            if (trackedOrder.CustomerId == courierId)
+                throw new CannotAcceptOrderException($"Cannot accept own order");
 
-            // Load the courier from Users table
-            var trackedCourier = await _context.Users
+            // Load courier
+                var trackedCourier = await _context.Users
                 .FirstOrDefaultAsync(u => u.UserIdPK == courierId)
                 ?? throw new Exception($"Courier with ID {courierId} not found");
 
-            // Update Order Status
-            trackedOrder.Status = Enums.Status.ACCEPTED;
-
-            // Update courier fields
+            // Update order info
+            trackedOrder.Status = Status.ACCEPTED;
             trackedOrder.CourierId = trackedCourier.UserIdPK;
             trackedOrder.Courier = trackedCourier;
 
-            // Attach new delivery details
-            deliveryDetails.OrderIdFK = trackedOrder.OrderIdPK;
-            trackedOrder.DeliveryDetails = deliveryDetails;
-            _context.DeliveryDetails.Add(deliveryDetails);
+            // ✅ Update existing delivery details (DO NOT reassign or add new)
+            var details = trackedOrder.DeliveryDetails;
 
-            // Save changes
+            details.CourierLatitude = deliveryDetails.CourierLatitude;
+            details.CourierLongitude = deliveryDetails.CourierLongitude;
+            // Add any other fields that can change
+
+            // Save everything
             await _context.SaveChangesAsync();
 
+            // Reload and return fully populated order
             return await _context.Orders
                 .Include(o => o.Courier)
                 .Include(o => o.Customer)
@@ -77,10 +86,12 @@ namespace PasabuyAPI.Repositories.Implementations
                 ?? trackedOrder;
         }
 
+
         public async Task<Orders> UpdateStatusAsync(long orderId, Status status)
         {
             var order = await _context.Orders
                         .Include(o => o.DeliveryDetails)  // 👈 make sure DeliveryDetails is loaded
+                        .Include(o => o.Payment)
                         .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
                         ?? throw new Exception($"Order id {orderId} not found");
 
@@ -90,6 +101,8 @@ namespace PasabuyAPI.Repositories.Implementations
             if (status == Status.DELIVERED && order.DeliveryDetails != null)
             {
                 order.DeliveryDetails.ActualDeliveryTime = DateTime.UtcNow;
+                order.Payment.PaidAt = DateTime.UtcNow;
+                order.Payment.PaymentStatus = PaymentStatus.COMPLETED;
             }
 
             await _context.SaveChangesAsync();
@@ -107,14 +120,37 @@ namespace PasabuyAPI.Repositories.Implementations
                             .ToListAsync();
         }
 
-        public async Task<List<Orders>> GetAllOrdersByUserId(long userId)
+        public async Task<List<Orders>> GetAllOrdersByCustomerId(long customerId)
         {
             return await _context.Orders
-                            .Where(o => o.CustomerId == userId)
+                            .Where(o => o.CustomerId == customerId)
                             .Include(o => o.Customer)               // optional: eager load related data
                             .Include(o => o.DeliveryDetails)        // optional: if you need delivery info
                             .Include(o => o.Payment)
                             .ToListAsync();
+        }
+
+        public async Task<List<Orders>> GetAllOrdersByCourierId(long courierId)
+        {
+            return await _context.Orders
+                            .Where(o => o.CourierId == courierId)
+                            .Include(o => o.Customer)
+                            .Include(o => o.Courier)
+                            .Include(o => o.DeliveryDetails)
+                            .Include(o => o.Payment)
+                            .ToListAsync();
+        }
+
+        // Helper Methods
+        public async Task<bool> IsUserAvailable(long userId)
+        {
+            var activeStatuses = new[] { Status.PENDING, Status.ACCEPTED, Status.IN_TRANSIT };
+
+            bool hasActiveOrder = await _context.Orders.AnyAsync(o =>
+                activeStatuses.Contains(o.Status) &&
+                (o.CourierId == userId || o.CustomerId == userId));
+
+            return !hasActiveOrder;
         }
     }
 }

@@ -20,10 +20,6 @@ namespace PasabuyAPI.Repositories.Implementations
                 payment.DeliveryFee += URGENCY_FEE;
                 payment.UrgencyFee = 5.0m;
             }
-            else
-            {
-                payment.UrgencyFee = 0m;
-            }
 
             payment.BaseFee = BASE_FEE;
 
@@ -41,6 +37,64 @@ namespace PasabuyAPI.Repositories.Implementations
                 .AsNoTracking()
                 .Include(p => p.Order)
                 .FirstOrDefaultAsync(p => p.TransactionId == transactionGuid);
+        }
+
+        public async Task<Payments?> ProposeItemsFeeAsync(long orderId, decimal proposedItemsFee)
+        {
+            Payments? target = await _context.Payments.FirstOrDefaultAsync(p => p.OrderIdFK == orderId);
+
+            if (target is null || target.OrderIdFK != orderId) return null;
+
+            target.ProposedItemsFee = proposedItemsFee;
+            target.IsItemsFeeConfirmed = false;
+            target.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return target;
+        }
+
+        public async Task<Payments?> AcceptProposedItemsFeeAsync(long orderId)
+        {
+            Payments? target = await _context.Payments.FirstOrDefaultAsync(p => p.OrderIdFK == orderId);
+
+            if (target is null || target.OrderIdFK != orderId) return null;
+
+            target.ItemsFee = target.ProposedItemsFee;
+            target.IsItemsFeeConfirmed = true;
+            target.TotalAmount = target.DeliveryFee + target.ItemsFee + (target.TipAmount ?? 0);
+            target.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return target;
+        }
+
+        public async Task<Payments> UpdatePaymentStatusAsync(long orderId, PaymentStatus paymentStatus)
+        {
+            Payments? target = await _context.Payments.FirstOrDefaultAsync(p => p.OrderIdFK == orderId);
+
+            if (target is null || target.OrderIdFK != orderId) return null;
+
+            target.PaymentStatus = paymentStatus;
+
+            if (paymentStatus == PaymentStatus.COMPLETED)
+            {
+                target.PaidAt = DateTime.UtcNow;
+            }
+
+            target.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return target;
+        }
+
+        public async Task<Payments> GetPaymentsByOrderIdAsync(long OrderId)
+        {
+            Payments? target = await _context.Payments.FirstOrDefaultAsync(p => p.OrderIdFK == OrderId);
+
+            if (target is null) return null;
+
+            return target;
         }
     }
 }

@@ -13,20 +13,12 @@ namespace PasabuyAPI.Repositories.Implementations
         public async Task<Users?> GetUserByIdAsync(long id)
         {
             return await _context.Users
-                // .Include(u => u.CustomerOrders)
-                //     .ThenInclude(o => o.DeliveryDetails)
-                // .Include(u => u.CourierOrders)
-                //     .ThenInclude(o => o.DeliveryDetails)
                 .FirstOrDefaultAsync(u => u.UserIdPK == id);
         }
 
         public async Task<List<Users>> GetAllUsersAsync()
         {
             return await _context.Users
-                // .Include(u => u.CustomerOrders)
-                //     .ThenInclude(o => o.DeliveryDetails)
-                // .Include(u => u.CourierOrders)
-                //     .ThenInclude(o => o.DeliveryDetails)
                 .ToListAsync();
         }
 
