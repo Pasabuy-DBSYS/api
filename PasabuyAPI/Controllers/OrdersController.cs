@@ -41,9 +41,17 @@ namespace PasabuyAPI.Controllers
         [HttpGet("customer/{customerId}")]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByCustomerIdAsync(long customerId)
         {
-            List<OrderResponseDTO> ordersByUser = await orderService.GetAllOrdersByCustomerIdAsync(customerId);
+            List<OrderResponseDTO> ordersByCustomer = await orderService.GetAllOrdersByCustomerIdAsync(customerId);
 
-            return Ok(ordersByUser);
+            return Ok(ordersByCustomer);
+        }
+
+        [HttpGet("courier/{courierId}")]
+        public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByCourierIdAsync(long courierId)
+        {
+            List<OrderResponseDTO> ordersByCourier = await orderService.GetAllOrdersByCourierIdAsync(courierId);
+
+            return Ok(ordersByCourier);
         }
 
 
