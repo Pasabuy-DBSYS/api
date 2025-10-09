@@ -25,12 +25,14 @@ builder.Services.AddScoped<IUserRespository, UserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IDeliveryDetailsRepository, DeliveryDetailsRepository>();
 builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>();
+builder.Services.AddScoped<IVerificationInfoRepository, VerificationInfoRepository>();
 
 // Dependency Injections [Services]
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IDeliveryDetailsService, DeliveryDetailsService>();
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
+builder.Services.AddScoped<IVerificationInfoService, VerificationInfoService>();
 
 
 // Mappers

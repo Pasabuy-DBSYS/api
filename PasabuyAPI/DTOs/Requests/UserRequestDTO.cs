@@ -15,15 +15,21 @@ namespace PasabuyAPI.DTOs.Requests
         public string Password { get; set; } = string.Empty; // plain password, hash later
 
         [Required, MaxLength(100)]
-        public string Name { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        [MaxLength(100)]
+        public string? MiddleName { get; set; } = string.Empty;
+        [MaxLength(100)]
+        public string LastName { get; set; } = string.Empty;
 
         [Required, Phone]
         public string Phone { get; set; } = string.Empty;
 
         public DateOnly Birthday { get; set; }
 
-        public YearLevel YearLevel { get; set; }
-
         public bool IsActive { get; set; } = true;
+
+        public string FrontIdPath { get; set; } = string.Empty;
+        public string BackIdPath { get; set; } = string.Empty;
+        public string InsurancePath { get; set; } = string.Empty;
     }
 }

@@ -9,6 +9,7 @@ namespace PasabuyAPI.Data
         public DbSet<Orders> Orders { get; set; }
         public DbSet<DeliveryDetails> DeliveryDetails { get; set; }
         public DbSet<Payments> Payments { get; set; }
+        public DbSet<VerificationInfo> VerificationInfo { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,15 +31,19 @@ namespace PasabuyAPI.Data
                 .HasOne(o => o.DeliveryDetails)
                 .WithOne(d => d.Order)
                 .HasForeignKey<DeliveryDetails>(d => d.OrderIdFK)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Orders>()
                 .HasOne(o => o.Payment)
                 .WithOne(p => p.Order)
                 .HasForeignKey<Payments>(p => p.OrderIdFK)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users>()
+                .HasOne(u => u.VerifiactionInfo)
+                .WithOne(v => v.User)
+                .HasForeignKey<VerificationInfo>(v => v.UserIdFK)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Payments>()
                 .HasIndex(p => p.TransactionId)
