@@ -24,6 +24,7 @@ namespace PasabuyAPI.Configurations.Jwt
                     new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub, user.UserIdPK.ToString()),
                     new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Email, user.Email),
                     new Claim("Username", user.Username),
+                    new Claim("Phone Number", user.Phone),
                     new Claim(ClaimTypes.Role, user.CurrentRole.ToString()),
                     new Claim("Verification Status", user.VerificationInfo.VerificationInfoStatus.ToString())
                 ]),

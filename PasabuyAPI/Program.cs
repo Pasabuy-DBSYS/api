@@ -34,7 +34,6 @@ builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>();
 builder.Services.AddScoped<IVerificationInfoRepository, VerificationInfoRepository>();
 builder.Services.AddScoped<IChatMessagesRepository, ChatMessagesRepository>();
 builder.Services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
-builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 
 // Dependency Injections [Services]
 builder.Services.AddScoped<IUserService, UserService>();
@@ -43,7 +42,6 @@ builder.Services.AddScoped<IDeliveryDetailsService, DeliveryDetailsService>();
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 builder.Services.AddScoped<IVerificationInfoService, VerificationInfoService>();
 builder.Services.AddScoped<IChatMessagesService, ChatMessagesService>();
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 
 // Mappers
@@ -54,31 +52,19 @@ builder.Services.AddMapster(); // if using Mapster.DependencyInjection
 builder.Services.AddSingleton<TokenProvider>();
 
 // Authentication AND Autherization
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("VerifiedOnly", policy =>
-        policy.RequireClaim("VerificationStatus", "Accepted"));
-});
-
+builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
     {
         o.RequireHttpsMetadata = false;
         o.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"])
-            ),
-            ValidateIssuer = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt Secret is empty"))),
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidateAudience = true,
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
     });
-
 
 // Register Swagger services
 builder.Services.AddEndpointsApiExplorer();
