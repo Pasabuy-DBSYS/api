@@ -30,6 +30,7 @@ builder.Services.AddScoped<IUserRespository, UserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IDeliveryDetailsRepository, DeliveryDetailsRepository>();
 builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>();
+builder.Services.AddScoped<IVerificationInfoRepository, VerificationInfoRepository>();
 builder.Services.AddScoped<IChatMessagesRepository, ChatMessagesRepository>();
 builder.Services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
 
@@ -38,6 +39,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IDeliveryDetailsService, DeliveryDetailsService>();
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
+builder.Services.AddScoped<IVerificationInfoService, VerificationInfoService>();
 builder.Services.AddScoped<IChatMessagesService, ChatMessagesService>();
 
 

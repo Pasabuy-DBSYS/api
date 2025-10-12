@@ -24,14 +24,18 @@ namespace PasabuyAPI.Models
         public string PasswordHash { get; set; } = string.Empty;
 
         [Required, MaxLength(100)]
-        public string Name { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+
+        [MaxLength(100)]
+        public string? MiddleName { get; set; } = string.Empty;
+
+        [Required, MaxLength(100)]
+        public string LastName { get; set; } = string.Empty;
 
         [Phone]
         public string Phone { get; set; } = string.Empty;
 
         public DateOnly Birthday { get; set; }
-
-        public YearLevel YearLevel { get; set; }
 
         [Range(0, 5)]
         [Column(TypeName = "decimal(2,1)")]
@@ -45,7 +49,7 @@ namespace PasabuyAPI.Models
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public bool IsActive { get; set; } = true;
-
+        public required VerificationInfo VerifiactionInfo { get; set; }
         public List<Orders> CustomerOrders { get; set; } = [];
         public List<Orders> CourierOrders { get; set; } = [];
 

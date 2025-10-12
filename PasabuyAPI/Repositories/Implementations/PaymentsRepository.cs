@@ -9,7 +9,7 @@ namespace PasabuyAPI.Repositories.Implementations
     public class PaymentsRepository(PasabuyDbContext _context) : IPaymentsRepository
     {
         private readonly decimal BASE_FEE = 10.0m;
-        private readonly decimal URGENCY_FEE = 5.0m;
+        private readonly decimal URGENCY_FEE = 15.0m;
         private readonly decimal FEE_PER_KM = 5.0m;
         public async Task<Payments> CreatePayment(Priority Urgency, decimal Distance, Payments payment)
         {

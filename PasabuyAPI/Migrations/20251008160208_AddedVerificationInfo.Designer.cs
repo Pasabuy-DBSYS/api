@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PasabuyAPI.Data;
@@ -11,9 +12,11 @@ using PasabuyAPI.Data;
 namespace PasabuyAPI.Migrations
 {
     [DbContext(typeof(PasabuyDbContext))]
-    partial class PasabuyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251008160208_AddedVerificationInfo")]
+    partial class AddedVerificationInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,75 +24,6 @@ namespace PasabuyAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("PasabuyAPI.Models.ChatMessages", b =>
-                {
-                    b.Property<long>("MessageIdPK")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("MessageIdPK"));
-
-                    b.Property<string>("MessageText")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("MessageType")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("ReadAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long>("ReceiverIdFK")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("RoomIdFK")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("SenderIdFK")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("MessageIdPK");
-
-                    b.HasIndex("ReceiverIdFK");
-
-                    b.HasIndex("RoomIdFK");
-
-                    b.HasIndex("SenderIdFK");
-
-                    b.ToTable("ChatMessages");
-                });
-
-            modelBuilder.Entity("PasabuyAPI.Models.ChatRooms", b =>
-                {
-                    b.Property<long>("RoomIdPK")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("RoomIdPK"));
-
-                    b.Property<DateTime?>("ClosedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<long>("OrderIdFK")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("RoomIdPK");
-
-                    b.HasIndex("OrderIdFK")
-                        .IsUnique();
-
-                    b.ToTable("ChatRooms");
-                });
 
             modelBuilder.Entity("PasabuyAPI.Models.DeliveryDetails", b =>
                 {
@@ -357,42 +291,6 @@ namespace PasabuyAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("VerificationInfo");
-            modelBuilder.Entity("PasabuyAPI.Models.ChatMessages", b =>
-                {
-                    b.HasOne("PasabuyAPI.Models.Users", "Receiver")
-                        .WithMany()
-                        .HasForeignKey("ReceiverIdFK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PasabuyAPI.Models.ChatRooms", "ChatRoom")
-                        .WithMany("ChatMessages")
-                        .HasForeignKey("RoomIdFK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PasabuyAPI.Models.Users", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderIdFK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChatRoom");
-
-                    b.Navigation("Receiver");
-
-                    b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("PasabuyAPI.Models.ChatRooms", b =>
-                {
-                    b.HasOne("PasabuyAPI.Models.Orders", "Order")
-                        .WithOne("ChatRoom")
-                        .HasForeignKey("PasabuyAPI.Models.ChatRooms", "OrderIdFK")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("PasabuyAPI.Models.DeliveryDetails", b =>
@@ -444,16 +342,10 @@ namespace PasabuyAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-            modelBuilder.Entity("PasabuyAPI.Models.ChatRooms", b =>
-                {
-                    b.Navigation("ChatMessages");
                 });
 
             modelBuilder.Entity("PasabuyAPI.Models.Orders", b =>
                 {
-                    b.Navigation("ChatRoom")
-                        .IsRequired();
-
                     b.Navigation("DeliveryDetails")
                         .IsRequired();
 
