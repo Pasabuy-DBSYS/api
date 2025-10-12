@@ -68,6 +68,28 @@ namespace PasabuyAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ChatRooms",
+                columns: table => new
+                {
+                    RoomIdPK = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OrderIdFK = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ClosedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatRooms", x => x.RoomIdPK);
+                    table.ForeignKey(
+                        name: "FK_ChatRooms_Orders_OrderIdFK",
+                        column: x => x.OrderIdFK,
+                        principalTable: "Orders",
+                        principalColumn: "OrderIdPK",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DeliveryDetails",
                 columns: table => new
                 {
@@ -110,7 +132,9 @@ namespace PasabuyAPI.Migrations
                     DeliveryFee = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
                     TipAmount = table.Column<decimal>(type: "numeric(10,2)", nullable: true),
                     ItemsFee = table.Column<decimal>(type: "numeric(10,2)", nullable: true),
+                    ProposedItemsFee = table.Column<decimal>(type: "numeric", nullable: true),
                     TotalAmount = table.Column<decimal>(type: "numeric(10,2)", nullable: true),
+                    IsItemsFeeConfirmed = table.Column<bool>(type: "boolean", nullable: false),
                     PaymentMethod = table.Column<int>(type: "integer", nullable: false),
                     PaymentStatus = table.Column<int>(type: "integer", nullable: false),
                     PaidAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -127,6 +151,64 @@ namespace PasabuyAPI.Migrations
                         principalColumn: "OrderIdPK",
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "ChatMessages",
+                columns: table => new
+                {
+                    MessageIdPK = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoomIdFK = table.Column<long>(type: "bigint", nullable: false),
+                    SenderIdFK = table.Column<long>(type: "bigint", nullable: false),
+                    ReceiverIdFK = table.Column<long>(type: "bigint", nullable: false),
+                    MessageText = table.Column<string>(type: "text", nullable: false),
+                    MessageType = table.Column<int>(type: "integer", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ReadAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatMessages", x => x.MessageIdPK);
+                    table.ForeignKey(
+                        name: "FK_ChatMessages_ChatRooms_RoomIdFK",
+                        column: x => x.RoomIdFK,
+                        principalTable: "ChatRooms",
+                        principalColumn: "RoomIdPK",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ChatMessages_Users_ReceiverIdFK",
+                        column: x => x.ReceiverIdFK,
+                        principalTable: "Users",
+                        principalColumn: "UserIdPK",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ChatMessages_Users_SenderIdFK",
+                        column: x => x.SenderIdFK,
+                        principalTable: "Users",
+                        principalColumn: "UserIdPK",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatMessages_ReceiverIdFK",
+                table: "ChatMessages",
+                column: "ReceiverIdFK");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatMessages_RoomIdFK",
+                table: "ChatMessages",
+                column: "RoomIdFK");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatMessages_SenderIdFK",
+                table: "ChatMessages",
+                column: "SenderIdFK");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatRooms_OrderIdFK",
+                table: "ChatRooms",
+                column: "OrderIdFK",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeliveryDetails_OrderIdFK",
@@ -179,10 +261,16 @@ namespace PasabuyAPI.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ChatMessages");
+
+            migrationBuilder.DropTable(
                 name: "DeliveryDetails");
 
             migrationBuilder.DropTable(
                 name: "Payments");
+
+            migrationBuilder.DropTable(
+                name: "ChatRooms");
 
             migrationBuilder.DropTable(
                 name: "Orders");

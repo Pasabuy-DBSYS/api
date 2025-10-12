@@ -26,5 +26,6 @@ namespace PasabuyAPI.Models
 
         public DeliveryDetails DeliveryDetails { get; set; } = null!;
         public Payments Payment { get; set; } = null!;
+        public ChatRooms ChatRoom { get; set; } = null!;
     }
 }
