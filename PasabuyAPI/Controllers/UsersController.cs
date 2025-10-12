@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Mapster;
 using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.DTOs.Requests;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PasabuyAPI.Controllers
 {
