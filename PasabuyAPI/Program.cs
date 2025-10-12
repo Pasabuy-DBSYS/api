@@ -9,6 +9,11 @@ using System.Text.Json.Serialization;
 using PasabuyAPI.Configurations.Mapping;
 using Mapster;
 using PasabuyAPI.Hubs;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using PasabuyAPI.Configurations.Jwt;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +31,8 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IDeliveryDetailsRepository, DeliveryDetailsRepository>();
 builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>();
 builder.Services.AddScoped<IVerificationInfoRepository, VerificationInfoRepository>();
+builder.Services.AddScoped<IChatMessagesRepository, ChatMessagesRepository>();
+builder.Services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
 
 // Dependency Injections [Services]
 builder.Services.AddScoped<IUserService, UserService>();
@@ -33,23 +40,34 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IDeliveryDetailsService, DeliveryDetailsService>();
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 builder.Services.AddScoped<IVerificationInfoService, VerificationInfoService>();
+builder.Services.AddScoped<IChatMessagesService, ChatMessagesService>();
 
 
 // Mappers
 MapsterConfig.RegisterMappings();
 builder.Services.AddMapster(); // if using Mapster.DependencyInjection
 
+// JWT
+builder.Services.AddSingleton<TokenProvider>();
+
+// Authentication AND Autherization
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(o =>
+    {
+        o.RequireHttpsMetadata = false;
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"])),
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
 // Register Swagger services
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "PasaBuy API",
-        Version = "v1",
-        Description = "API documentation for PasaBuy"
-    });
-});
+builder.Services.AddSwaggerGen();
 
 // SignalR Service
 builder.Services.AddSignalR();
@@ -72,6 +90,13 @@ builder.Services.AddMvc(options =>
 
 var app = builder.Build();
 
+
+// Websockets
+
+app.MapHub<OrdersHub>("/ordersHub"); // hub endpoint
+app.MapHub<ChatHub>("/chatsHub");
+
+
 // Enable Swagger middleware in development
 if (app.Environment.IsDevelopment())
 {
@@ -84,9 +109,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
-app.MapHub<OrdersHub>("/ordersHub"); // hub endpoint
+
 app.UseCors("AllowFrontend");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();

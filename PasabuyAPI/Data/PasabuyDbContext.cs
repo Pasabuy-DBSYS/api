@@ -10,6 +10,8 @@ namespace PasabuyAPI.Data
         public DbSet<DeliveryDetails> DeliveryDetails { get; set; }
         public DbSet<Payments> Payments { get; set; }
         public DbSet<VerificationInfo> VerificationInfo { get; set; }
+        public DbSet<ChatMessages> ChatMessages { get; set; }
+        public DbSet<ChatRooms> ChatRooms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -45,9 +47,17 @@ namespace PasabuyAPI.Data
                 .HasForeignKey<VerificationInfo>(v => v.UserIdFK)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Orders>()
+                .HasOne(o => o.ChatRoom)
+                .WithOne(c => c.Order)
+                .HasForeignKey<ChatRooms>(c => c.OrderIdFK)
+                .OnDelete(DeleteBehavior.Restrict);
+                
             modelBuilder.Entity<Payments>()
                 .HasIndex(p => p.TransactionId)
                 .IsUnique();
+            
+            
         }
     }
 }
