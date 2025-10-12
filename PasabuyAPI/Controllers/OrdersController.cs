@@ -33,6 +33,7 @@ namespace PasabuyAPI.Controllers
             return Ok(response);
         }
 
+        [Authorize(Policy = "VerifiedOnly")]
         [HttpGet("status/{status}")]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByStatus(Status status)
         {
@@ -41,6 +42,7 @@ namespace PasabuyAPI.Controllers
             return Ok(pendingOrders);
         }
 
+        [Authorize(Policy = "CustomerOnly")]
         [HttpGet("customer/{customerId}")]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByCustomerIdAsync(long customerId)
         {
@@ -49,7 +51,7 @@ namespace PasabuyAPI.Controllers
             return Ok(ordersByUser);
         }
 
-
+        [Authorize(Policy = "CustomerOnly")]
         [HttpPost]
         public async Task<ActionResult<OrderResponseDTO>> CreateOrderAsync([FromBody] CreateOrderDTO orderRequest)
         {
@@ -64,7 +66,7 @@ namespace PasabuyAPI.Controllers
                 );
         }
         
-        [Authorize(Roles = Constants.Roles.COURIER)]
+        [Authorize(Policy = "CouriersOnly")]
         [HttpPost("accept/{orderId}")]
         public async Task<ActionResult<OrderResponseDTO>> AcceptOrderAsync([FromBody] AcceptOrderDTO acceptOrderDTO, long orderId)
         {
