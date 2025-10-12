@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PasabuyAPI.Data;
 using PasabuyAPI.DTOs.Requests;
@@ -12,19 +13,23 @@ namespace PasabuyAPI.Repositories.Implementations
         public async Task<Users?> GetUserByIdAsync(long id)
         {
             return await context.Users
-                    .Include(u => u.VerifiactionInfo)
+                    .Include(u => u.VerificationInfo)
                     .FirstOrDefaultAsync(u => u.UserIdPK == id);
         }
 
         public async Task<List<Users>> GetAllUsersAsync()
         {
             return await context.Users
-                .Include(u => u.VerifiactionInfo)
+                .Include(u => u.VerificationInfo)
                 .ToListAsync();
         }
 
         public async Task<Users> AddUserAsync(Users user)
         {
+
+            var passwordHasher = new PasswordHasher<Users>();
+            user.PasswordHash = passwordHasher.HashPassword(user, user.PasswordHash);
+
             context.Users.Add(user);
             await context.SaveChangesAsync();
             return user;

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PasabuyAPI.Data;
@@ -11,9 +12,11 @@ using PasabuyAPI.Data;
 namespace PasabuyAPI.Migrations
 {
     [DbContext(typeof(PasabuyDbContext))]
-    partial class PasabuyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251012142300_ConfiguredEnumTypes")]
+    partial class ConfiguredEnumTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -452,7 +455,7 @@ namespace PasabuyAPI.Migrations
             modelBuilder.Entity("PasabuyAPI.Models.VerificationInfo", b =>
                 {
                     b.HasOne("PasabuyAPI.Models.Users", "User")
-                        .WithOne("VerificationInfo")
+                        .WithOne("VerifiactionInfo")
                         .HasForeignKey("PasabuyAPI.Models.VerificationInfo", "UserIdFK")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -483,7 +486,7 @@ namespace PasabuyAPI.Migrations
 
                     b.Navigation("CustomerOrders");
 
-                    b.Navigation("VerificationInfo")
+                    b.Navigation("VerifiactionInfo")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

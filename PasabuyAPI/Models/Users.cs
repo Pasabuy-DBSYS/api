@@ -37,22 +37,23 @@ namespace PasabuyAPI.Models
 
         public DateOnly Birthday { get; set; }
 
+
+        public Roles CurrentRole { get; set; }
+
         [Range(0, 5)]
         [Column(TypeName = "decimal(2,1)")]
         public decimal RatingAverage { get; set; } = 0m;
 
         public long TotalDeliveries { get; set; } = 0;
+        public long TotalOrders { get; set; } = 0;
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public bool IsActive { get; set; } = true;
-        public required VerificationInfo VerifiactionInfo { get; set; }
+        public required VerificationInfo VerificationInfo { get; set; }
         public List<Orders> CustomerOrders { get; set; } = [];
         public List<Orders> CourierOrders { get; set; } = [];
-
-
     }
 }

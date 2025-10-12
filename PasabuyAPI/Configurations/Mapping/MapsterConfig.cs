@@ -23,7 +23,7 @@ namespace PasabuyAPI.Configurations.Mapping
                 .Map(dest => dest.CreatedAt, src => src.CreatedAt)
                 .Map(dest => dest.UpdatedAt, src => src.UpdatedAt)
                 .Map(dest => dest.IsActive, src => src.IsActive)
-                .Map(dest => dest.VerifiactionInfoDTO, src => src.VerifiactionInfo);
+                .Map(dest => dest.VerifiactionInfoDTO, src => src.VerificationInfo);
             // .IgnoreNullValues(true);
 
             TypeAdapterConfig<UserRequestDTO, Users>.NewConfig()
@@ -32,7 +32,7 @@ namespace PasabuyAPI.Configurations.Mapping
                 .Ignore(dest => dest.CourierOrders)
                 .Ignore(dest => dest.CreatedAt)
                 .Ignore(dest => dest.UpdatedAt)
-                .Ignore(dest => dest.VerifiactionInfo)
+                .Ignore(dest => dest.VerificationInfo)
                 .Map(dest => dest.PasswordHash, src => src.Password); // if not hashing yet
 
             TypeAdapterConfig<Orders, OrderResponseDTO>.NewConfig()
