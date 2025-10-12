@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PasabuyAPI.Data;
@@ -11,9 +12,11 @@ using PasabuyAPI.Data;
 namespace PasabuyAPI.Migrations
 {
     [DbContext(typeof(PasabuyDbContext))]
-    partial class PasabuyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251012141427_AddedUserCurrentRole")]
+    partial class AddedUserCurrentRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,9 +37,8 @@ namespace PasabuyAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("MessageType")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("MessageType")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("timestamp with time zone");
@@ -162,17 +164,15 @@ namespace PasabuyAPI.Migrations
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Priority")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Request")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("Updated_at")
                         .HasColumnType("timestamp with time zone");
@@ -215,13 +215,11 @@ namespace PasabuyAPI.Migrations
                     b.Property<DateTime?>("PaidAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("PaymentStatus")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("integer");
 
                     b.Property<decimal?>("ProposedItemsFee")
                         .HasColumnType("numeric");
@@ -264,11 +262,11 @@ namespace PasabuyAPI.Migrations
                         .HasColumnType("date");
 
                     b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CurrentRole")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("CurrentRole")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -359,9 +357,8 @@ namespace PasabuyAPI.Migrations
                     b.Property<long>("UserIdFK")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("VerificationInfoStatus")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("VerificationInfoStatus")
+                        .HasColumnType("integer");
 
                     b.HasKey("VerifiactionInfoId");
 
@@ -452,7 +449,7 @@ namespace PasabuyAPI.Migrations
             modelBuilder.Entity("PasabuyAPI.Models.VerificationInfo", b =>
                 {
                     b.HasOne("PasabuyAPI.Models.Users", "User")
-                        .WithOne("VerificationInfo")
+                        .WithOne("VerifiactionInfo")
                         .HasForeignKey("PasabuyAPI.Models.VerificationInfo", "UserIdFK")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -483,7 +480,7 @@ namespace PasabuyAPI.Migrations
 
                     b.Navigation("CustomerOrders");
 
-                    b.Navigation("VerificationInfo")
+                    b.Navigation("VerifiactionInfo")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

@@ -42,10 +42,38 @@ namespace PasabuyAPI.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Users>()
-                .HasOne(u => u.VerifiactionInfo)
+                .HasOne(u => u.VerificationInfo)
                 .WithOne(v => v.User)
                 .HasForeignKey<VerificationInfo>(v => v.UserIdFK)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users>()
+                .Property(u => u.CurrentRole)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<VerificationInfo>()
+                .Property(v => v.VerificationInfoStatus)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Orders>()
+                .Property(o => o.Priority)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Orders>()
+                .Property(o => o.Status)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<ChatMessages>()
+                .Property(m => m.MessageType)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Payments>()
+                .Property(p => p.PaymentStatus)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Payments>()
+                .Property(p => p.PaymentMethod)
+                .HasConversion<string>();
 
             modelBuilder.Entity<Orders>()
                 .HasOne(o => o.ChatRoom)
