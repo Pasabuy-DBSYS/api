@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using Mapster;
 using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.DTOs.Requests;
+using Microsoft.AspNetCore.Authorization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace PasabuyAPI.Controllers
 {
@@ -20,6 +23,24 @@ namespace PasabuyAPI.Controllers
         public async Task<ActionResult<List<UserResponseDTO>>> GetUsersAsync()
         {
             return Ok(await _userService.GetAllUsersAsync());
+        }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<ActionResult<UserResponseDTO>> GetProfileAsync()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+                return Unauthorized("Invalid token — user ID not found.");
+
+            if (!long.TryParse(userIdClaim, out var userId))
+                return BadRequest("Invalid user ID format.");
+
+            var user = await _userService.GetUserByIdAsync(userId);
+            if (user == null)
+                return NotFound("User not found.");
+
+            return Ok(user);
         }
 
         [HttpGet("{id}")]

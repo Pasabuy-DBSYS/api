@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using PasabuyAPI.DTOs.Requests;
@@ -30,6 +33,7 @@ namespace PasabuyAPI.Controllers
             return Ok(response);
         }
 
+        [Authorize(Policy = "VerifiedOnly")]
         [HttpGet("status/{status}")]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByStatus(Status status)
         {
@@ -38,6 +42,7 @@ namespace PasabuyAPI.Controllers
             return Ok(pendingOrders);
         }
 
+        [Authorize(Policy = "CustomerOnly")]
         [HttpGet("customer/{customerId}")]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByCustomerIdAsync(long customerId)
         {
@@ -46,7 +51,7 @@ namespace PasabuyAPI.Controllers
             return Ok(ordersByUser);
         }
 
-
+        [Authorize(Policy = "CustomerOnly")]
         [HttpPost]
         public async Task<ActionResult<OrderResponseDTO>> CreateOrderAsync([FromBody] CreateOrderDTO orderRequest)
         {
@@ -60,10 +65,22 @@ namespace PasabuyAPI.Controllers
                     new { response }
                 );
         }
-
+        
+        [Authorize(Policy = "CouriersOnly")]
         [HttpPost("accept/{orderId}")]
         public async Task<ActionResult<OrderResponseDTO>> AcceptOrderAsync([FromBody] AcceptOrderDTO acceptOrderDTO, long orderId)
         {
+            var courierIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (long.TryParse(courierIdClaim, out var courierId))
+            {
+                acceptOrderDTO.CourierId = courierId;
+            }
+            else
+            {
+                return BadRequest("Invalid courier ID in token.");
+            }
+
             OrderResponseDTO responseDTO = await orderService.AcceptOrderAsync(acceptOrderDTO, orderId);
 
             await hubContext.Clients.All.SendAsync("OrderAccepted", responseDTO);

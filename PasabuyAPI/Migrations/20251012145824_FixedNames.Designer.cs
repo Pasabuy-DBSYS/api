@@ -12,8 +12,8 @@ using PasabuyAPI.Data;
 namespace PasabuyAPI.Migrations
 {
     [DbContext(typeof(PasabuyDbContext))]
-    [Migration("20251006081559_AddedProposedItemsInPaymentsEntity")]
-    partial class AddedProposedItemsInPaymentsEntity
+    [Migration("20251012145824_FixedNames")]
+    partial class FixedNames
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,76 @@ namespace PasabuyAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("PasabuyAPI.Models.ChatMessages", b =>
+                {
+                    b.Property<long>("MessageIdPK")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("MessageIdPK"));
+
+                    b.Property<string>("MessageText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MessageType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("ReceiverIdFK")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RoomIdFK")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SenderIdFK")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("MessageIdPK");
+
+                    b.HasIndex("ReceiverIdFK");
+
+                    b.HasIndex("RoomIdFK");
+
+                    b.HasIndex("SenderIdFK");
+
+                    b.ToTable("ChatMessages");
+                });
+
+            modelBuilder.Entity("PasabuyAPI.Models.ChatRooms", b =>
+                {
+                    b.Property<long>("RoomIdPK")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("RoomIdPK"));
+
+                    b.Property<DateTime?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("OrderIdFK")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("RoomIdPK");
+
+                    b.HasIndex("OrderIdFK")
+                        .IsUnique();
+
+                    b.ToTable("ChatRooms");
+                });
 
             modelBuilder.Entity("PasabuyAPI.Models.DeliveryDetails", b =>
                 {
@@ -95,15 +165,17 @@ namespace PasabuyAPI.Migrations
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Priority")
-                        .HasColumnType("integer");
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Request")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("Updated_at")
                         .HasColumnType("timestamp with time zone");
@@ -146,11 +218,13 @@ namespace PasabuyAPI.Migrations
                     b.Property<DateTime?>("PaidAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("PaymentMethod")
-                        .HasColumnType("integer");
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("PaymentStatus")
-                        .HasColumnType("integer");
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<decimal?>("ProposedItemsFee")
                         .HasColumnType("numeric");
@@ -193,18 +267,30 @@ namespace PasabuyAPI.Migrations
                         .HasColumnType("date");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CurrentRole")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("LastName")
                         .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("MiddleName")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -222,6 +308,9 @@ namespace PasabuyAPI.Migrations
                     b.Property<long>("TotalDeliveries")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("TotalOrders")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -229,9 +318,6 @@ namespace PasabuyAPI.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
-
-                    b.Property<int>("YearLevel")
-                        .HasColumnType("integer");
 
                     b.HasKey("UserIdPK");
 
@@ -247,12 +333,92 @@ namespace PasabuyAPI.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("PasabuyAPI.Models.VerificationInfo", b =>
+                {
+                    b.Property<long>("VerifiactionInfoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("VerifiactionInfoId"));
+
+                    b.Property<string>("BackIdPath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FrontIdPath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("InsurancePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("UserIdFK")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("VerificationInfoStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("VerifiactionInfoId");
+
+                    b.HasIndex("UserIdFK")
+                        .IsUnique();
+
+                    b.ToTable("VerificationInfo");
+                });
+
+            modelBuilder.Entity("PasabuyAPI.Models.ChatMessages", b =>
+                {
+                    b.HasOne("PasabuyAPI.Models.Users", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverIdFK")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PasabuyAPI.Models.ChatRooms", "ChatRoom")
+                        .WithMany("ChatMessages")
+                        .HasForeignKey("RoomIdFK")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PasabuyAPI.Models.Users", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderIdFK")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChatRoom");
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("PasabuyAPI.Models.ChatRooms", b =>
+                {
+                    b.HasOne("PasabuyAPI.Models.Orders", "Order")
+                        .WithOne("ChatRoom")
+                        .HasForeignKey("PasabuyAPI.Models.ChatRooms", "OrderIdFK")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("PasabuyAPI.Models.DeliveryDetails", b =>
                 {
                     b.HasOne("PasabuyAPI.Models.Orders", "Order")
                         .WithOne("DeliveryDetails")
                         .HasForeignKey("PasabuyAPI.Models.DeliveryDetails", "OrderIdFK")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Order");
                 });
@@ -280,13 +446,33 @@ namespace PasabuyAPI.Migrations
                     b.HasOne("PasabuyAPI.Models.Orders", "Order")
                         .WithOne("Payment")
                         .HasForeignKey("PasabuyAPI.Models.Payments", "OrderIdFK")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("PasabuyAPI.Models.VerificationInfo", b =>
+                {
+                    b.HasOne("PasabuyAPI.Models.Users", "User")
+                        .WithOne("VerificationInfo")
+                        .HasForeignKey("PasabuyAPI.Models.VerificationInfo", "UserIdFK")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PasabuyAPI.Models.ChatRooms", b =>
+                {
+                    b.Navigation("ChatMessages");
+                });
+
             modelBuilder.Entity("PasabuyAPI.Models.Orders", b =>
                 {
+                    b.Navigation("ChatRoom")
+                        .IsRequired();
+
                     b.Navigation("DeliveryDetails")
                         .IsRequired();
 
@@ -299,6 +485,9 @@ namespace PasabuyAPI.Migrations
                     b.Navigation("CourierOrders");
 
                     b.Navigation("CustomerOrders");
+
+                    b.Navigation("VerificationInfo")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
