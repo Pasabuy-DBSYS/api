@@ -12,7 +12,7 @@ using PasabuyAPI.Data;
 namespace PasabuyAPI.Migrations
 {
     [DbContext(typeof(PasabuyDbContext))]
-    [Migration("20251012081550_InitialCreate")]
+    [Migration("20251012135658_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -269,11 +269,20 @@ namespace PasabuyAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("LastName")
                         .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("MiddleName")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -299,9 +308,6 @@ namespace PasabuyAPI.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<int>("YearLevel")
-                        .HasColumnType("integer");
-
                     b.HasKey("UserIdPK");
 
                     b.HasIndex("Email")
@@ -314,6 +320,46 @@ namespace PasabuyAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("PasabuyAPI.Models.VerificationInfo", b =>
+                {
+                    b.Property<long>("VerifiactionInfoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("VerifiactionInfoId"));
+
+                    b.Property<string>("BackIdPath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FrontIdPath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("InsurancePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("UserIdFK")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("VerificationInfoStatus")
+                        .HasColumnType("integer");
+
+                    b.HasKey("VerifiactionInfoId");
+
+                    b.HasIndex("UserIdFK")
+                        .IsUnique();
+
+                    b.ToTable("VerificationInfo");
                 });
 
             modelBuilder.Entity("PasabuyAPI.Models.ChatMessages", b =>
@@ -359,7 +405,8 @@ namespace PasabuyAPI.Migrations
                     b.HasOne("PasabuyAPI.Models.Orders", "Order")
                         .WithOne("DeliveryDetails")
                         .HasForeignKey("PasabuyAPI.Models.DeliveryDetails", "OrderIdFK")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Order");
                 });
@@ -387,9 +434,21 @@ namespace PasabuyAPI.Migrations
                     b.HasOne("PasabuyAPI.Models.Orders", "Order")
                         .WithOne("Payment")
                         .HasForeignKey("PasabuyAPI.Models.Payments", "OrderIdFK")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("PasabuyAPI.Models.VerificationInfo", b =>
+                {
+                    b.HasOne("PasabuyAPI.Models.Users", "User")
+                        .WithOne("VerifiactionInfo")
+                        .HasForeignKey("PasabuyAPI.Models.VerificationInfo", "UserIdFK")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PasabuyAPI.Models.ChatRooms", b =>
@@ -414,6 +473,9 @@ namespace PasabuyAPI.Migrations
                     b.Navigation("CourierOrders");
 
                     b.Navigation("CustomerOrders");
+
+                    b.Navigation("VerifiactionInfo")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

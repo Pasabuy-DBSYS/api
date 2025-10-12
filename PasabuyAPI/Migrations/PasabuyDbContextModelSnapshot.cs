@@ -357,6 +357,8 @@ namespace PasabuyAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("VerificationInfo");
+                });
+
             modelBuilder.Entity("PasabuyAPI.Models.ChatMessages", b =>
                 {
                     b.HasOne("PasabuyAPI.Models.Users", "Receiver")
@@ -444,6 +446,8 @@ namespace PasabuyAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
             modelBuilder.Entity("PasabuyAPI.Models.ChatRooms", b =>
                 {
                     b.Navigation("ChatMessages");

@@ -21,10 +21,11 @@ namespace PasabuyAPI.Migrations
                     Email = table.Column<string>(type: "text", nullable: false),
                     Username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    FirstName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    MiddleName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Phone = table.Column<string>(type: "text", nullable: false),
                     Birthday = table.Column<DateOnly>(type: "date", nullable: false),
-                    YearLevel = table.Column<int>(type: "integer", nullable: false),
                     RatingAverage = table.Column<decimal>(type: "numeric(2,1)", nullable: false),
                     TotalDeliveries = table.Column<long>(type: "bigint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -62,6 +63,31 @@ namespace PasabuyAPI.Migrations
                     table.ForeignKey(
                         name: "FK_Orders_Users_CustomerId",
                         column: x => x.CustomerId,
+                        principalTable: "Users",
+                        principalColumn: "UserIdPK",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VerificationInfo",
+                columns: table => new
+                {
+                    VerifiactionInfoId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserIdFK = table.Column<long>(type: "bigint", nullable: false),
+                    FrontIdPath = table.Column<string>(type: "text", nullable: false),
+                    BackIdPath = table.Column<string>(type: "text", nullable: false),
+                    InsurancePath = table.Column<string>(type: "text", nullable: false),
+                    VerificationInfoStatus = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VerificationInfo", x => x.VerifiactionInfoId);
+                    table.ForeignKey(
+                        name: "FK_VerificationInfo_Users_UserIdFK",
+                        column: x => x.UserIdFK,
                         principalTable: "Users",
                         principalColumn: "UserIdPK",
                         onDelete: ReferentialAction.Restrict);
@@ -255,6 +281,12 @@ namespace PasabuyAPI.Migrations
                 table: "Users",
                 column: "Username",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VerificationInfo_UserIdFK",
+                table: "VerificationInfo",
+                column: "UserIdFK",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -268,6 +300,9 @@ namespace PasabuyAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Payments");
+
+            migrationBuilder.DropTable(
+                name: "VerificationInfo");
 
             migrationBuilder.DropTable(
                 name: "ChatRooms");
