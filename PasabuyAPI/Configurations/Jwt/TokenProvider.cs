@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using PasabuyAPI.Exceptions;
 using PasabuyAPI.Models;
 using PasabuyAPI.Services.Implementations;
 
@@ -12,7 +13,7 @@ namespace PasabuyAPI.Configurations.Jwt
     {
         public string Create(Users user)
         {
-            string secretKey = configuration["Jwt:Secret"];
+            string secretKey = configuration["Jwt:Secret"] ?? throw new NotFoundException("JWT Secret is not found");
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
