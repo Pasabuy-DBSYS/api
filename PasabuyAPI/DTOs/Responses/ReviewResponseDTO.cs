@@ -1,22 +1,13 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace PasabuyAPI.Models
+namespace PasabuyAPI.DTOs.Responses
 {
-    public class Reviews
+    public class ReviewResponseDTO
     {
-        [Key]
         public long ReviewIDPK { get; set; }
-
         public long OrderIDFK { get; set; }
         public long ReviewerIDFK { get; set; }
         public long ReviewedUserID { get; set; }
-
-        [Range(1, 5)]
         public byte Rating { get; set; }
-
-        [MaxLength(500)]
         public string? Comment { get; set; }
-
         public DateTime CreatedAt { get; set; }
     }
 }
