@@ -17,6 +17,11 @@ using System.Text;
 using PasabuyAPI.Configurations.Extensions;
 using PasabuyAPI.Constants;
 using PasabuyAPI.Exceptions;
+using Microsoft.AspNetCore.Identity;
+using PasabuyAPI.Models;
+using Amazon.S3;
+using Amazon;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +41,7 @@ builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>();
 builder.Services.AddScoped<IVerificationInfoRepository, VerificationInfoRepository>();
 builder.Services.AddScoped<IChatMessagesRepository, ChatMessagesRepository>();
 builder.Services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
+builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 
 // Dependency Injections [Services]
 builder.Services.AddScoped<IUserService, UserService>();
@@ -44,7 +50,12 @@ builder.Services.AddScoped<IDeliveryDetailsService, DeliveryDetailsService>();
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 builder.Services.AddScoped<IVerificationInfoService, VerificationInfoService>();
 builder.Services.AddScoped<IChatMessagesService, ChatMessagesService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IAwsS3Service, AwsS3Service>();
 
+
+// PasswordHasher DI
+builder.Services.AddScoped<IPasswordHasher<Users>, PasswordHasher<Users>>();
 
 // Mappers
 MapsterConfig.RegisterMappings();
@@ -88,6 +99,18 @@ builder.Services.AddSwaggerGenWithAuth();
 // SignalR Service
 builder.Services.AddSignalR();
 
+// AWS S3
+var awsOptions = builder.Configuration.GetSection("AWS");
+
+builder.Services.AddSingleton<IAmazonS3>(sp =>
+{
+    return new AmazonS3Client(
+        awsOptions["AccessKey"],
+        awsOptions["SecretKey"],
+        RegionEndpoint.GetBySystemName(awsOptions["Region"])
+    );
+});
+
 // ✅ Add CORS (for frontend connection)
 builder.Services.AddCors(options =>
 {
@@ -104,14 +127,14 @@ builder.Services.AddMvc(options =>
    options.SuppressAsyncSuffixInActionNames = false;
 });
 
+
 var app = builder.Build();
 
 
 // Websockets
 
-app.MapHub<OrdersHub>("/ordersHub"); // hub endpoint
-app.MapHub<ChatHub>("/chatsHub");
-
+app.MapHub<OrdersHub>("/ordersHub"); // Orders hub endpoint
+app.MapHub<ChatHub>("/chatsHub");  // Chatt hub endpoint
 
 // Enable Swagger middleware in development
 if (app.Environment.IsDevelopment())

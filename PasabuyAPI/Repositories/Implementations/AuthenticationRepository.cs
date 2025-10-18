@@ -32,7 +32,24 @@ namespace PasabuyAPI.Repositories.Implementations
 
             // Generate JWT token
             var token = tokenProvider.Create(user);
+            await context.SaveChangesAsync();
             return token;
         }
+
+        public async Task Logout(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+                throw new Exception("Username cannot be empty");
+
+            // Find the user
+            var user = await context.Users
+                .FirstOrDefaultAsync(u => u.Username == username || u.Email == username)
+                ?? throw new Exception("User not found");
+
+            // Mark user as inactive
+            await context.SaveChangesAsync();
+        }
+
+
     }
 }

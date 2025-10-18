@@ -50,8 +50,6 @@ namespace PasabuyAPI.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        public bool IsActive { get; set; } = true;
         public required VerificationInfo VerificationInfo { get; set; }
         public List<Orders> CustomerOrders { get; set; } = [];
         public List<Orders> CourierOrders { get; set; } = [];
