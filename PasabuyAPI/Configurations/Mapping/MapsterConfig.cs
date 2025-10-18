@@ -22,7 +22,6 @@ namespace PasabuyAPI.Configurations.Mapping
                 .Map(dest => dest.TotalDeliveries, src => src.TotalDeliveries)
                 .Map(dest => dest.CreatedAt, src => src.CreatedAt)
                 .Map(dest => dest.UpdatedAt, src => src.UpdatedAt)
-                .Map(dest => dest.IsActive, src => src.IsActive)
                 .Map(dest => dest.VerifiactionInfoDTO, src => src.VerificationInfo);
             // .IgnoreNullValues(true);
 

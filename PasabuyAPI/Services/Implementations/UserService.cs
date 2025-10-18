@@ -5,6 +5,7 @@ using PasabuyAPI.Repositories.Interfaces;
 using PasabuyAPI.Services.Interfaces;
 using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.Enums;
+using PasabuyAPI.Exceptions;
 
 namespace PasabuyAPI.Services.Implementations
 {
@@ -44,6 +45,7 @@ namespace PasabuyAPI.Services.Implementations
                 UserIdFK = addedUser.UserIdPK,
                 FrontIdPath = user.FrontIdPath,
                 BackIdPath = user.BackIdPath,
+                InsurancePath = user.InsurancePath,
                 VerificationInfoStatus = VerificationInfoStatus.PENDING,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -54,6 +56,45 @@ namespace PasabuyAPI.Services.Implementations
             var response = addedUser.Adapt<UserResponseDTO>();
             response.VerifiactionInfoDTO = addedVerification.Adapt<VerificationInfoResponseDTO>();
             return response;
+        }
+
+        public async Task<UserResponseDTO> UpdateNameAsync(long userId, ChangeNameRequestDTO changeNameRequestDto)
+        {
+            var updatedUser = await userRepository.UpdateNameAsync(userId, changeNameRequestDto.FirstName, changeNameRequestDto.MiddleName ?? string.Empty, changeNameRequestDto.LastName);
+            
+            return updatedUser.Adapt<UserResponseDTO>();
+        }
+
+        public async Task<UserResponseDTO> UpdateUserEmail(long userId, string email)
+        {
+            var updatedUser = await userRepository.UpdateUserEmail(userId, email);
+            return updatedUser.Adapt<UserResponseDTO>();
+        }
+
+        public async Task<UserResponseDTO> UpdatePhoneNumber(long userId, string phoneNumber)
+        {
+            var updatedUser = await userRepository.UpdatePhoneNumber(userId, phoneNumber);
+            return updatedUser.Adapt<UserResponseDTO>();        
+        }
+
+        public async Task<UserResponseDTO> UpdatePassword(long userId, string password, string confirmation)
+        {
+            if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(confirmation))
+                throw new EmptyFieldException("Password cannot be empty");
+            
+            if (password != confirmation)
+                throw new PasswordMismatchException("Password mismatch");
+
+
+            var updatedUser = await userRepository.UpdatePassword(userId, password);
+            return updatedUser.Adapt<UserResponseDTO>();
+        }
+
+        public async Task<UserResponseDTO> UpdateRole(long userId, Roles role)
+        {
+            var response = await userRepository.UpdateRole(userId, role);
+            return response.Adapt<UserResponseDTO>();
+
         }
     }
 }

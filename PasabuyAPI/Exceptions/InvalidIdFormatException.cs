@@ -1,6 +1,6 @@
 namespace PasabuyAPI.Exceptions
 {
-    public class InvalidIdFormatException : Exception
+    public class InvalidIdFormatException : FormatException
     {
         public InvalidIdFormatException() : base("Invalid Id Format") { }
 
