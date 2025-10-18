@@ -8,6 +8,7 @@ namespace PasabuyAPI.Services.Interfaces
     {
         Task<VerificationInfoResponseDTO> CreateVerificationInfo(VerificationInfoRequestDTO requestDTO);
         Task<VerificationInfoResponseDTO> UpdateVerificationInfoByUserIdAsync(VerificationInfoStatus verificationInfoStatus, long userId);
+        Task<VerificationInfoResponseDTO> UpdateInsuranceAsync(IFormFile insurance, long userId);
 
     }
 }

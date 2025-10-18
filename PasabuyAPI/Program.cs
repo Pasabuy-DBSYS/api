@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using PasabuyAPI.Configurations.Extensions;
-using PasabuyAPI.Constants;
+using PasabuyAPI.Enums;
 using PasabuyAPI.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using PasabuyAPI.Models;
@@ -68,15 +68,15 @@ builder.Services.AddSingleton<TokenProvider>();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("VerifiedOnly", policy =>
-        policy.RequireClaim("VerificationStatus", "Accepted"));
+        policy.RequireClaim("VerificationStatus", VerificationInfoStatus.ACCEPTED.ToString()));
 
     options.AddPolicy("CourierOnly", policy =>
-        policy.RequireRole(Roles.COURIER)
-            .RequireClaim("VerificationStatus", "Accepted"));
+        policy.RequireRole(Roles.COURIER.ToString())
+            .RequireClaim("VerificationStatus", VerificationInfoStatus.ACCEPTED.ToString()));
 
     options.AddPolicy("CustomerOnly", policy =>
-        policy.RequireRole(Roles.CUSTOMER)
-            .RequireClaim("VerificationStatus", "Accepted"));
+        policy.RequireRole(Roles.CUSTOMER.ToString())
+            .RequireClaim("Verification Status", VerificationInfoStatus.ACCEPTED.ToString()));
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

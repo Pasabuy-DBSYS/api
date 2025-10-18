@@ -8,5 +8,6 @@ namespace PasabuyAPI.Services.Interfaces
         Task<string> UploadFileAsync(IFormFile file, string key);
         Task<Stream?> GetFileAsync(string targetDirectory, string fileName);
         string GenerateSignedUrl(string key, TimeSpan validFor);
+        Task DeleteFileAsync(string key);
     }
 }

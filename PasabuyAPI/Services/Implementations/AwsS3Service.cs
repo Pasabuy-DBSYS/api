@@ -91,5 +91,17 @@ namespace PasabuyAPI.Services.Implementations
 
             return $"{resourceUrl}?Policy={encodedPolicy}&Signature={signature}&Key-Pair-Id={_keyPairId}";
         }
+
+        public async Task DeleteFileAsync(string key)
+        {
+            var request = new DeleteObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = key
+            };
+
+            await s3Client.DeleteObjectAsync(request);
+        }
+
     }
 }

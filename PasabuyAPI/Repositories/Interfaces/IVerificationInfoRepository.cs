@@ -7,5 +7,7 @@ namespace PasabuyAPI.Repositories.Interfaces
     {
         Task<VerificationInfo> CreateVerificationInfoAsync(VerificationInfo verificationInfo);
         Task<VerificationInfo> UpdateVerificationInfoByUserIdAsync(VerificationInfoStatus verificationInfoStatus, long userId);
+        Task<VerificationInfo> UpdateInsuranceAsync(string insurancePath, long userId);
     }
+    
 }
