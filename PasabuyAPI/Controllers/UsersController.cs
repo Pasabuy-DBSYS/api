@@ -55,34 +55,6 @@ namespace PasabuyAPI.Controllers
             return Ok(user);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<UserResponseDTO>> CreateUserAsync([FromForm] UserRequestDTO userData)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                // Save files to AWS Bucket
-                var paths = await awsS3Service.UploadIDs(userData.FrontId, userData.BackId, userData.Insurance);
-
-                userData.FrontIdPath = paths.FrontIdFileName;
-                userData.BackIdPath = paths.BackIdFileName;
-                userData.InsurancePath = paths.InsuranceFileName;
-
-                // Proceed to create the user
-                var user = await _userService.CreateUserAsync(userData);
-
-                return CreatedAtAction(nameof(GetUserAsync),
-                    new { id = user.UserIdPK },
-                    user);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
-        }
-
         [Authorize]
         [HttpPatch("change/name")]
         public async Task<ActionResult<UserResponseDTO>> UpdateNameAsync( [FromBody] ChangeNameRequestDTO changeNameRequestDto)
