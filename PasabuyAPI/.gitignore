@@ -7,3 +7,5 @@ appsettings.Development.json
 obj/
 
 Keys/
+*.pem
+*.key
