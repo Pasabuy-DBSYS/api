@@ -16,7 +16,7 @@ namespace PasabuyAPI.Controllers
     [Route("api/[controller]")]
     public class OrdersController(IOrderService orderService, IHubContext<OrdersHub> hubContext) : ControllerBase
     {
-
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersAsync()
         {
@@ -24,6 +24,7 @@ namespace PasabuyAPI.Controllers
             return Ok(orders);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderResponseDTO>> GetOrderByIdAsync(long id)
         {
@@ -42,11 +43,34 @@ namespace PasabuyAPI.Controllers
             return Ok(pendingOrders);
         }
 
-        [Authorize(Policy = "CustomerOnly")]
-        [HttpGet("customer/{customerId}")]
-        public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByCustomerIdAsync(long customerId)
+        [Authorize(Policy = "VerifiedOnly")]
+        [HttpGet("customer")]
+        public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByCustomerIdAsync()
         {
+            var customerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!long.TryParse(customerIdClaim, out var customerId))
+            {
+                return BadRequest("Invalid courier ID in token.");
+            }
+
             List<OrderResponseDTO> ordersByUser = await orderService.GetAllOrdersByCustomerIdAsync(customerId);
+
+            return Ok(ordersByUser);
+        }
+
+        [Authorize(Policy = "VerifiedOnly")]
+        [HttpGet("courier")]
+        public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByCourierIdAsync()
+        {
+            var courierIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!long.TryParse(courierIdClaim, out var courierId))
+            {
+                return BadRequest("Invalid courier ID in token.");
+            }
+
+            List<OrderResponseDTO> ordersByUser = await orderService.GetAllOrdersByCourierIdAsync(courierId);
 
             return Ok(ordersByUser);
         }
@@ -59,14 +83,10 @@ namespace PasabuyAPI.Controllers
 
             await hubContext.Clients.All.SendAsync("OrderCreated", response);
 
-            return CreatedAtAction(
-                    nameof(GetOrderByIdAsync),
-                    new { id = response.OrderIdPK },
-                    new { response }
-                );
+            return StatusCode(201, response);
         }
-        
-        [Authorize(Policy = "CouriersOnly")]
+
+        [Authorize(Policy = "CourierOnly")]
         [HttpPost("accept/{orderId}")]
         public async Task<ActionResult<OrderResponseDTO>> AcceptOrderAsync([FromBody] AcceptOrderDTO acceptOrderDTO, long orderId)
         {
@@ -87,11 +107,19 @@ namespace PasabuyAPI.Controllers
 
             return StatusCode(201, responseDTO);
         }
-
-        [HttpPatch("update/{orderId}")]
-        public async Task<ActionResult<OrderResponseDTO>> UpdateOrderStatusAsync([FromBody] Status status, long orderId)
+        
+        [Authorize(Policy = "VerifiedOnly")]
+        [HttpPatch("update/{orderId}/{status}")]
+        public async Task<ActionResult<OrderResponseDTO>> UpdateOrderStatusAsync(Status status, long orderId)
         {
-            OrderResponseDTO responseDTO = await orderService.UpdateStatusAsync(orderId, status);
+            var currentUser = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if(!long.TryParse(currentUser, out var currentUserId))
+            {
+                return Unauthorized("Invalid token — user ID not found.");
+            }
+
+            OrderResponseDTO responseDTO = await orderService.UpdateStatusAsync(orderId, status, currentUserId);
 
             await hubContext.Clients.All.SendAsync("OrderStatusUpdated", responseDTO);
 

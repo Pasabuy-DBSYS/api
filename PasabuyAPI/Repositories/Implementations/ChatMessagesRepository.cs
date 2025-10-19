@@ -9,6 +9,29 @@ namespace PasabuyAPI.Repositories.Implementations
     {
         public async Task<ChatMessages> SendMessage(ChatMessages message)
         {
+            // Validate chat room
+            var chatRoom = await context.ChatRooms
+                .Include(r => r.Order)
+                .FirstOrDefaultAsync(r => r.RoomIdPK == message.RoomIdFK)
+                ?? throw new Exception("Chat room not found.");
+
+            var order = chatRoom.Order;
+
+            // Determine allowed users (customer & courier)
+            var allowedUserIds = new List<long>
+            {
+                order.CustomerId,
+                order.CourierId ?? 0
+            };
+
+            // Check if sender is part of the chat
+            if (!allowedUserIds.Contains(message.SenderIdFK))
+                throw new UnauthorizedAccessException("You are not allowed to send messages in this chat.");
+
+            // Optional: Check if receiver is valid (prevent spoofing)
+            if (!allowedUserIds.Contains(message.ReceiverIdFK))
+                throw new UnauthorizedAccessException("Invalid receiver for this chat room.");
+
             await context.ChatMessages.AddAsync(message);
             await context.SaveChangesAsync();
 

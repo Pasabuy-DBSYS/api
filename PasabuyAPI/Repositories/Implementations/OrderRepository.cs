@@ -17,6 +17,7 @@ namespace PasabuyAPI.Repositories.Implementations
                 .Include(o => o.Customer)
                 .Include(o => o.DeliveryDetails)
                 .Include(o => o.Payment)
+                .Include(o => o.ChatRoom)
                 .ToListAsync();
         }
         public async Task<Orders?> GetOrderByOrderId(long id)
@@ -26,6 +27,7 @@ namespace PasabuyAPI.Repositories.Implementations
                 .Include(o => o.Customer)
                 .Include(o => o.DeliveryDetails)
                 .Include(o => o.Payment)
+                .Include(o => o.ChatRoom)
                 .FirstOrDefaultAsync(o => o.OrderIdPK == id);
         }
         public async Task<Orders> CreateOrder(Orders orderData)
@@ -47,6 +49,7 @@ namespace PasabuyAPI.Repositories.Implementations
             var trackedOrder = await _context.Orders
                 .Include(o => o.DeliveryDetails)
                 .Include(o => o.Payment)
+                .Include(o => o.ChatRoom)
                 .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
                 ?? throw new Exception($"Order with ID {orderId} not found");
 
@@ -57,9 +60,9 @@ namespace PasabuyAPI.Repositories.Implementations
                 throw new CannotAcceptOrderException($"Cannot accept own order");
 
             // Load courier
-                var trackedCourier = await _context.Users
-                .FirstOrDefaultAsync(u => u.UserIdPK == courierId)
-                ?? throw new Exception($"Courier with ID {courierId} not found");
+            var trackedCourier = await _context.Users
+            .FirstOrDefaultAsync(u => u.UserIdPK == courierId)
+            ?? throw new Exception($"Courier with ID {courierId} not found");
 
             // Update order info
             trackedOrder.Status = Status.ACCEPTED;
@@ -71,7 +74,18 @@ namespace PasabuyAPI.Repositories.Implementations
 
             details.CourierLatitude = deliveryDetails.CourierLatitude;
             details.CourierLongitude = deliveryDetails.CourierLongitude;
-            // Add any other fields that can change
+            // Add any other fields that can chang
+
+            var chatRoom = new ChatRooms
+            {
+                OrderIdFK = trackedOrder.OrderIdPK,
+                Order = trackedOrder,
+                IsActive = true
+            };
+
+            var trackedChatRoom = await _context.ChatRooms.AddAsync(chatRoom);
+
+            trackedOrder.ChatRoom = chatRoom;
 
             // Save everything
             await _context.SaveChangesAsync();
@@ -87,13 +101,17 @@ namespace PasabuyAPI.Repositories.Implementations
         }
 
 
-        public async Task<Orders> UpdateStatusAsync(long orderId, Status status)
+        public async Task<Orders> UpdateStatusAsync(long orderId, Status status, long currentUserId)
         {
             var order = await _context.Orders
-                        .Include(o => o.DeliveryDetails)  // 👈 make sure DeliveryDetails is loaded
-                        .Include(o => o.Payment)
-                        .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
-                        ?? throw new Exception($"Order id {orderId} not found");
+                            .Include(o => o.DeliveryDetails)
+                            .Include(o => o.Payment)
+                            .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
+                            ?? throw new Exception($"Order id {orderId} not found");
+
+            // Authorization check
+            if (order.CustomerId != currentUserId && order.CourierId != currentUserId)
+                throw new UnauthorizedAccessException("You are not authorized to update this order.");
 
             order.Updated_at = DateTime.UtcNow;
             order.Status = status;
@@ -106,9 +124,9 @@ namespace PasabuyAPI.Repositories.Implementations
             }
 
             await _context.SaveChangesAsync();
-
             return order;
         }
+
 
         public async Task<List<Orders>> GetAllOrdersByStatus(Status status)
         {

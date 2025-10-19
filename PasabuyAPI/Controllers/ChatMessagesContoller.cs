@@ -17,7 +17,7 @@ namespace PasabuyAPI.Controllers
         private readonly IChatMessagesService _chatMessagesService = chatMessagesService;
         private readonly IHubContext<ChatHub> _chatHub = chatHub;
 
-        [Authorize(Policy = "Verified")]
+        [Authorize(Policy = "VerifiedOnly")]
         [HttpPost("send")]
         public async Task<ActionResult<ChatMessagesResponseDTO>> SendMessageAsync([FromBody] SendMessageRequestDTO sendMessageRequestDTO)
         {
@@ -30,7 +30,7 @@ namespace PasabuyAPI.Controllers
             return Ok(savedMessage);
         }
 
-        [Authorize(Policy = "Verified")]
+        [Authorize(Policy = "VerifiedOnly")]
         [HttpGet("{roomId}")]
         public async Task<ActionResult<ChatMessagesResponseDTO>> GetAllMesagesByRoomId(long roomId)
         {

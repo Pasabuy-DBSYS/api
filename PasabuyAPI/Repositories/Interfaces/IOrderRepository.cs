@@ -11,7 +11,7 @@ namespace PasabuyAPI.Repositories.Interfaces
         Task<Orders?> GetOrderByOrderId(long id);
         Task<Orders> CreateOrder(Orders orderData);
         Task<Orders> AcceptOrder(long orderId, long courierId, DeliveryDetails deliveryDetails);
-        Task<Orders> UpdateStatusAsync(long orderId, Status status);
+        Task<Orders> UpdateStatusAsync(long orderId, Status status, long currentUserId);
         Task<List<Orders>> GetAllOrdersByStatus(Status status);
         Task<List<Orders>> GetAllOrdersByCustomerId(long customerId);
         Task<List<Orders>> GetAllOrdersByCourierId(long courierId);
