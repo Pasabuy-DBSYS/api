@@ -28,12 +28,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services
 builder.Services.AddControllers().AddJsonOptions(x =>
         x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-    
+
+//Uncomment this after in memory testing ><, para no need na mag setup2 sa db before testing
 builder.Services.AddDbContext<PasabuyDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-// Dependency Injections [Repositories]
+//after using pls comment this again
+// In-Memory Database for testing purposes
+// builder.Services.AddDbContext<PasabuyDbContext>(options =>
+//     options.UseInMemoryDatabase("TestDB"));
+
+
+// Dependency Injections [Repositories]`
 builder.Services.AddScoped<IUserRespository, UserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IDeliveryDetailsRepository, DeliveryDetailsRepository>();
