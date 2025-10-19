@@ -83,15 +83,15 @@ public class OrderService(IOrderRepository orderRepository, IDeliveryDetailsRepo
 
     public async Task<List<OrderResponseDTO>> GetAllOrdersByCustomerIdAsync(long customerId)
     {
-        List<Orders> ordersByUserId = await orderRepository.GetAllOrdersByCustomerId(customerId);
+        List<Orders> ordersByCustomerId = await orderRepository.GetAllOrdersByCustomerId(customerId);
 
-        return ordersByUserId.Adapt<List<OrderResponseDTO>>();
+        return ordersByCustomerId.Adapt<List<OrderResponseDTO>>();
     }
 
-    public async Task<List<OrderResponseDTO>> GetAllOrdersByCourierIdAsync(long customerId)
+    public async Task<List<OrderResponseDTO>> GetAllOrdersByCourierIdAsync(long courierId)
     {
-        List<Orders> ordersByUserId = await orderRepository.GetAllOrdersByCourierId(customerId);
+        List<Orders> ordersByCourierId = await orderRepository.GetAllOrdersByCourierId(courierId);
 
-        return ordersByUserId.Adapt<List<OrderResponseDTO>>();
+        return ordersByCourierId.Adapt<List<OrderResponseDTO>>();
     }
 }

@@ -14,6 +14,6 @@ namespace PasabuyAPI.Services.Interfaces
         Task<OrderResponseDTO> UpdateStatusAsync(long orderId, Status status, long currentUserId);
         Task<List<OrderResponseDTO>> GetAllOrdersByStatus(Status status);
         Task<List<OrderResponseDTO>> GetAllOrdersByCustomerIdAsync(long customerId);
-        Task<List<OrderResponseDTO>> GetAllOrdersByCourierIdAsync(long customerId);
+        Task<List<OrderResponseDTO>> GetAllOrdersByCourierIdAsync(long courierId);
     }
 }
