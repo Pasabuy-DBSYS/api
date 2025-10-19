@@ -44,7 +44,8 @@ namespace PasabuyAPI.Configurations.Mapping
                 .Map(dest => dest.Created_at, src => src.Created_at)
                 .Map(dest => dest.Updated_at, src => src.Updated_at)
                 .Map(dest => dest.DeliveryDetailsDTO, src => src.DeliveryDetails)
-                .Map(dest => dest.PaymentsResponseDTO, src => src.Payment);
+                .Map(dest => dest.PaymentsResponseDTO, src => src.Payment)
+                .Map(dest => dest.ChatRoomResponseDTO, src => src.ChatRoom);
         }
     }
 }

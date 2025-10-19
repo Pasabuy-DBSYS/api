@@ -16,5 +16,6 @@ namespace PasabuyAPI.DTOs.Responses
         public DateTime Updated_at { get; set; }
         public DeliveryDetailsResponseDTO DeliveryDetailsDTO { get; set; } = null!;
         public PaymentsResponseDTO PaymentsResponseDTO { get; set; } = null!;
+        public ChatRoomResponseDTO ChatRoomResponseDTO { get; set; } = null!;
     }
 }

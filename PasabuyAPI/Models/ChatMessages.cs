@@ -19,7 +19,7 @@ namespace PasabuyAPI.Models
         [ForeignKey("Receiver")]
         public long ReceiverIdFK { get; set; }
         public Users Receiver { get; set; } = null!;
-        public string MessageText { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
         public MessageTypes MessageType { get; set; }
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
         public DateTime? ReadAt { get; set; }

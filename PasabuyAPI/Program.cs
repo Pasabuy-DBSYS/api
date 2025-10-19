@@ -68,11 +68,11 @@ builder.Services.AddSingleton<TokenProvider>();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("VerifiedOnly", policy =>
-        policy.RequireClaim("VerificationStatus", VerificationInfoStatus.ACCEPTED.ToString()));
+        policy.RequireClaim("Verification Status", VerificationInfoStatus.ACCEPTED.ToString()));
 
     options.AddPolicy("CourierOnly", policy =>
         policy.RequireRole(Roles.COURIER.ToString())
-            .RequireClaim("VerificationStatus", VerificationInfoStatus.ACCEPTED.ToString()));
+            .RequireClaim("Verification Status", VerificationInfoStatus.ACCEPTED.ToString()));
 
     options.AddPolicy("CustomerOnly", policy =>
         policy.RequireRole(Roles.CUSTOMER.ToString())
