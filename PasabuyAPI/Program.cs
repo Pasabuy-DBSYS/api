@@ -28,19 +28,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services
 builder.Services.AddControllers().AddJsonOptions(x =>
         x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-
-//Uncomment this after in memory testing ><, para no need na mag setup2 sa db before testing
+    
 builder.Services.AddDbContext<PasabuyDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-//after using pls comment this again
-// In-Memory Database for testing purposes
-// builder.Services.AddDbContext<PasabuyDbContext>(options =>
-//     options.UseInMemoryDatabase("TestDB"));
-
-
-// Dependency Injections [Repositories]`
+// Dependency Injections [Repositories]
 builder.Services.AddScoped<IUserRespository, UserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IDeliveryDetailsRepository, DeliveryDetailsRepository>();
@@ -97,6 +90,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             ClockSkew = TimeSpan.Zero
         };
+
+        o.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatsHub"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 // Register Swagger services
@@ -119,15 +126,26 @@ builder.Services.AddSingleton<IAmazonS3>(sp =>
 });
 
 // ✅ Add CORS (for frontend connection)
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy("AllowFrontend",
+//         policy => policy
+//             .WithOrigins("http://localhost:5173") // React frontend URL
+//             .AllowAnyHeader()
+//             .AllowAnyMethod()
+//             .AllowCredentials());
+// });
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
+    options.AddPolicy("AllowAll",
         policy => policy
-            .WithOrigins("http://localhost:5173") // React frontend URL
+            .WithOrigins("http://localhost:5173")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());
 });
+
 
 builder.Services.AddMvc(options =>
 {
@@ -140,8 +158,7 @@ var app = builder.Build();
 
 // Websockets
 
-app.MapHub<OrdersHub>("/ordersHub"); // Orders hub endpoint
-app.MapHub<ChatHub>("/chatsHub");  // Chatt hub endpoint
+
 
 // Enable Swagger middleware in development
 if (app.Environment.IsDevelopment())
@@ -155,12 +172,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-app.UseCors("AllowFrontend");
-
+app.UseCors("AllowAll");
+app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapControllers();
-
+app.MapHub<ChatHub>("/chatsHub");  // Chat hub endpoint
+app.MapHub<OrdersHub>("/ordersHub"); // Orders hub endpoint
 app.Run();

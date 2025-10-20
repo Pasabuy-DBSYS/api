@@ -9,13 +9,10 @@ namespace PasabuyAPI.Data
         public DbSet<Orders> Orders { get; set; }
         public DbSet<DeliveryDetails> DeliveryDetails { get; set; }
         public DbSet<Payments> Payments { get; set; }
-<<<<<<< HEAD
         public DbSet<Reviews> Reviews { get; set; }
-=======
         public DbSet<VerificationInfo> VerificationInfo { get; set; }
         public DbSet<ChatMessages> ChatMessages { get; set; }
         public DbSet<ChatRooms> ChatRooms { get; set; }
->>>>>>> ddf09745fc32859346f9e05c7571e95a7b7d8124
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
