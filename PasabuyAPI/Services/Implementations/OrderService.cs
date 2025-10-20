@@ -40,7 +40,8 @@ public class OrderService(IOrderRepository orderRepository, IDeliveryDetailsRepo
             CustomerLatitude = orderData.CustomerLatitude,
             CustomerLongitude = orderData.CustomerLongitude,
             ActualDistance = orderData.DeliveryDistance,
-            DeliveryNotes = orderData.DeliveryNotes
+            DeliveryNotes = orderData.DeliveryNotes,
+            Address = orderData.Address
         });
 
         Payments payments = await paymentsRepository.CreatePayment(order.Priority, orderData.DeliveryDistance, new()
