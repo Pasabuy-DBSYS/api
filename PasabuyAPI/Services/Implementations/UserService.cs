@@ -90,11 +90,14 @@ namespace PasabuyAPI.Services.Implementations
             return updatedUser.Adapt<UserResponseDTO>();
         }
 
-        public async Task<UserResponseDTO> UpdateRole(long userId, Roles role)
+        public async Task<string> UpdateRole(long userId, Roles role)
         {
-            var response = await userRepository.UpdateRole(userId, role);
-            return response.Adapt<UserResponseDTO>();
+            return await userRepository.UpdateRole(userId, role);
+        }
 
+        public async Task<bool> VerifyUser(long userId)
+        {
+            return await userRepository.VerifyUser(userId);
         }
     }
 }

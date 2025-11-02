@@ -8,18 +8,32 @@ using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.Enums;
 using PasabuyAPI.Hubs;
 using PasabuyAPI.Models;
+using PasabuyAPI.Repositories.Implementations;
 using PasabuyAPI.Services.Interfaces;
 
 namespace PasabuyAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OrdersController(IOrderService orderService, IHubContext<OrdersHub> hubContext) : ControllerBase
+    public class OrdersController(IOrderService orderService, IHubContext<OrdersHub> hubContext, IUserService userService) : ControllerBase
     {
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersAsync()
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                return Unauthorized("Invalid token — user ID not found.");
+
+            if (!long.TryParse(userIdClaim, out var userId))
+                return BadRequest("Invalid user ID format.");
+
+            if (!await userService.VerifyUser(userId))
+            {
+                return Unauthorized("User not verified");
+            }
+
             List<OrderResponseDTO> orders = await orderService.GetOrdersAsync();
             return Ok(orders);
         }
@@ -28,30 +42,62 @@ namespace PasabuyAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderResponseDTO>> GetOrderByIdAsync(long id)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                return Unauthorized("Invalid token — user ID not found.");
+
+            if (!long.TryParse(userIdClaim, out var userId))
+                return BadRequest("Invalid user ID format.");
+
+            if (!await userService.VerifyUser(userId))
+            {
+                return Unauthorized("User not verified");
+            }
+
             OrderResponseDTO? response = await orderService.GetOrderByOrderId(id);
             if (response == null) return NotFound($"Order id [{id}] not found");
 
             return Ok(response);
         }
 
-        [Authorize(Policy = "VerifiedOnly")]
+        [Authorize]
         [HttpGet("status/{status}")]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByStatus(Status status)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                return Unauthorized("Invalid token — user ID not found.");
+
+            if (!long.TryParse(userIdClaim, out var userId))
+                return BadRequest("Invalid user ID format.");
+
+            if (!await userService.VerifyUser(userId))
+            {
+                return Unauthorized("User not verified");
+            }
+
             List<OrderResponseDTO> pendingOrders = await orderService.GetAllOrdersByStatus(status);
 
             return Ok(pendingOrders);
         }
 
-        [Authorize(Policy = "VerifiedOnly")]
+        [Authorize]
         [HttpGet("customer")]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByCustomerIdAsync()
         {
-            var customerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (!long.TryParse(customerIdClaim, out var customerId))
+            if (userIdClaim == null)
+                return Unauthorized("Invalid token — user ID not found.");
+
+            if (!long.TryParse(userIdClaim, out var customerId))
+                return BadRequest("Invalid user ID format.");
+
+            if (!await userService.VerifyUser(customerId))
             {
-                return BadRequest("Invalid courier ID in token.");
+                return Unauthorized("User not verified");
             }
 
             List<OrderResponseDTO> ordersByUser = await orderService.GetAllOrdersByCustomerIdAsync(customerId);
@@ -59,15 +105,21 @@ namespace PasabuyAPI.Controllers
             return Ok(ordersByUser);
         }
 
-        [Authorize(Policy = "VerifiedOnly")]
+        [Authorize]
         [HttpGet("courier")]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByCourierIdAsync()
         {
-            var courierIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (!long.TryParse(courierIdClaim, out var courierId))
+            if (userIdClaim == null)
+                return Unauthorized("Invalid token — user ID not found.");
+
+            if (!long.TryParse(userIdClaim, out var courierId))
+                return BadRequest("Invalid user ID format.");
+
+            if (!await userService.VerifyUser(courierId))
             {
-                return BadRequest("Invalid courier ID in token.");
+                return Unauthorized("User not verified");
             }
 
             List<OrderResponseDTO> ordersByUser = await orderService.GetAllOrdersByCourierIdAsync(courierId);
@@ -108,15 +160,20 @@ namespace PasabuyAPI.Controllers
             return StatusCode(201, responseDTO);
         }
         
-        [Authorize(Policy = "VerifiedOnly")]
+        [Authorize]
         [HttpPatch("update/{orderId}/{status}")]
         public async Task<ActionResult<OrderResponseDTO>> UpdateOrderStatusAsync(Status status, long orderId)
         {
             var currentUser = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if(!long.TryParse(currentUser, out var currentUserId))
+            if (!long.TryParse(currentUser, out var currentUserId))
             {
-                return Unauthorized("Invalid token — user ID not found.");
+                return Forbid("Invalid token — user ID not found.");
+            }
+            
+            if(!await userService.VerifyUser(currentUserId))
+            {
+                return Unauthorized("User not verified.");
             }
 
             OrderResponseDTO responseDTO = await orderService.UpdateStatusAsync(orderId, status, currentUserId);
