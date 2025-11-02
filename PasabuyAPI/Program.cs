@@ -67,9 +67,6 @@ builder.Services.AddSingleton<TokenProvider>();
 // Authentication AND Autherization
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("VerifiedOnly", policy =>
-        policy.RequireClaim("Verification Status", VerificationInfoStatus.ACCEPTED.ToString()));
-
     options.AddPolicy("CourierOnly", policy =>
         policy.RequireRole(Roles.COURIER.ToString())
             .RequireClaim("Verification Status", VerificationInfoStatus.ACCEPTED.ToString()));
@@ -85,10 +82,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         o.RequireHttpsMetadata = false;
         o.TokenValidationParameters = new TokenValidationParameters
         {
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ?? throw new NotFoundException("Jwt Secret is not found or empty"))),
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]
+                    ?? throw new NotFoundException("Jwt Secret is not found or empty"))),
+
+            ValidateIssuer = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
+
+            ValidateAudience = true,
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            ClockSkew = TimeSpan.Zero
+
+            ValidateLifetime = true, // ✅ ensures expired tokens are rejected
+            ClockSkew = TimeSpan.Zero // optional, removes the default 5 min leeway
         };
 
         o.Events = new JwtBearerEvents
@@ -140,10 +146,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
         policy => policy
-            .WithOrigins("http://localhost:5173")
+            .AllowAnyOrigin()
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials());
+            .AllowAnyMethod());
+            // .AllowCredentials());
 });
 
 

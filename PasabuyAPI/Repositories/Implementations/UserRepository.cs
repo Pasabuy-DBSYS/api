@@ -2,6 +2,7 @@ using System.Net.Mail;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PasabuyAPI.Configurations.Jwt;
 using PasabuyAPI.Data;
 using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.Enums;
@@ -11,7 +12,7 @@ using PasabuyAPI.Repositories.Interfaces;
 
 namespace PasabuyAPI.Repositories.Implementations
 {
-    public class UserRepository(PasabuyDbContext context, IPasswordHasher<Users> passwordHasher) : IUserRespository
+    public class UserRepository(PasabuyDbContext context, IPasswordHasher<Users> passwordHasher, TokenProvider tokenProvider) : IUserRespository
     {
 
         public async Task<Users?> GetUserByIdAsync(long id)
@@ -108,14 +109,17 @@ namespace PasabuyAPI.Repositories.Implementations
             return target;
         }
 
-        public async Task<Users> UpdateRole(long userId, Roles role)
+        public async Task<string> UpdateRole(long userId, Roles role)
         {
-            Users target = await context.Users.FindAsync(userId)
+            Users target = await context.Users.Include(u => u.VerificationInfo).FirstOrDefaultAsync(u => u.UserIdPK == userId)
                             ?? throw new NotFoundException($"User with id: {userId} not found");
+
+            if (await HasActiveOrderAsync(userId)) throw new CannotUpdateRoleException("You have an active order. You cannot change roles now");
 
             target.CurrentRole = role;
             await context.SaveChangesAsync();
-            return target;
+            string token = tokenProvider.Create(target);
+            return token;
         }
 
         // helpers
@@ -133,6 +137,19 @@ namespace PasabuyAPI.Repositories.Implementations
             return await context.Users.AnyAsync(u => u.Phone == phone);
         }
 
-        
+        public async Task<bool> HasActiveOrderAsync(long userId)
+        {
+            return await context.Orders.AnyAsync(o =>
+                (o.CustomerId == userId || o.CourierId == userId)
+                && o.Status >= Status.PENDING
+                && o.Status < Status.DELIVERED
+                );
+        }
+
+        public async Task<bool> VerifyUser(long userId)
+        {
+            return await context.Users.AnyAsync(u => u.UserIdPK == userId &&
+                    u.VerificationInfo.VerificationInfoStatus == VerificationInfoStatus.ACCEPTED);
+        }
     }
 }

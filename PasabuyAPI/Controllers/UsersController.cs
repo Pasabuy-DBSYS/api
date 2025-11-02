@@ -141,9 +141,8 @@ namespace PasabuyAPI.Controllers
         }
 
         [Authorize]
-        [HttpPatch("change/role")]
-        public async Task<ActionResult<UserResponseDTO>> UpdateRoleAsync(
-            [FromBody] Roles role)
+        [HttpPatch("change/role/{role}")]
+        public async Task<ActionResult<string>> UpdateRoleAsync(Roles role)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -159,7 +158,7 @@ namespace PasabuyAPI.Controllers
 
             return Ok(response);
         }
-        
+
         [HttpGet("signed-url")]
         public IActionResult GetSignedUrl([FromQuery] string key)
         {
@@ -181,5 +180,6 @@ namespace PasabuyAPI.Controllers
                 return StatusCode(500, new { Message = "Error generating signed URL", Details = ex.Message });
             }
         }
+    
     }
 }

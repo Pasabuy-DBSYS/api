@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.DTOs.Responses;

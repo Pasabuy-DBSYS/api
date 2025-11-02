@@ -14,6 +14,7 @@ namespace PasabuyAPI.Services.Interfaces
         Task<UserResponseDTO> UpdateUserEmail(long userId, string email);
         Task<UserResponseDTO> UpdatePhoneNumber(long userId, string phoneNumber);
         Task<UserResponseDTO> UpdatePassword(long userId, string password, string confirmation);
-        Task<UserResponseDTO> UpdateRole(long userId, Roles role);
+        Task<string> UpdateRole(long userId, Roles role);
+        Task<bool> VerifyUser(long userId);
     }
 }
