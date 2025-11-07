@@ -13,9 +13,17 @@ namespace PasabuyAPI.Controllers
     public class AuthenticationController(IAuthenticationService authenticationService, IAwsS3Service awsS3Service, IUserService userService) : ControllerBase
     {
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login([FromBody] LoginRequestDTO loginRequestDTO)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
         {
-            return await authenticationService.Login(loginRequestDTO);
+            try
+            {
+                var result = await authenticationService.Login(loginRequestDTO);
+                return Ok(new { message = "Login Successful", token = result });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(400, e);
+            }
         }
 
         [HttpPost("register")]
@@ -36,12 +44,29 @@ namespace PasabuyAPI.Controllers
                 // Proceed to create the user
                 var user = await userService.CreateUserAsync(userData);
 
-                return user.Adapt<UserResponseDTO>();
+                return Ok(new { message = "Register Successful" , data = user.Adapt<UserResponseDTO>()});
             }
             catch (Exception ex)
             {
                 return BadRequest(new { error = ex.Message });
             }
+        }
+
+        [Authorize]
+        [HttpGet("verifystatus")]
+        public async Task<IActionResult> VerifyUser()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                return Forbid("Invalid token");
+
+            if (!long.TryParse(userIdClaim, out var userId))
+                return Forbid("Invalid Id");
+
+            string token = await userService.VerifyUser(userId);
+
+            return Ok(new { token = token });
         }
     }
 }

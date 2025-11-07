@@ -25,6 +25,7 @@ namespace PasabuyAPI.Configurations.Jwt
                     new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub, user.UserIdPK.ToString()),
                     new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Email, user.Email),
                     new Claim("Username", user.Username),
+                    new Claim("Verification Status", user.VerificationInfo.VerificationInfoStatus.ToString()),
                     new Claim(ClaimTypes.Role, user.CurrentRole.ToString()),
                 ]),
                 Expires = DateTime.UtcNow.AddMinutes(configuration.GetValue<int>("Jwt:ExpirationInMinutes")),

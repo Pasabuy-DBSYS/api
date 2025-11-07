@@ -159,11 +159,12 @@ namespace PasabuyAPI.Controllers
             return Ok(response);
         }
 
+        [Authorize]
         [HttpGet("signed-url")]
         public IActionResult GetSignedUrl([FromQuery] string key)
         {
             if (string.IsNullOrEmpty(key))
-                return BadRequest("Missing file key. Example: /api/cloudfronttest/signed-url?key=ids/front_test.png");
+                return BadRequest("Missing file key");
 
             try
             {
@@ -180,6 +181,5 @@ namespace PasabuyAPI.Controllers
                 return StatusCode(500, new { Message = "Error generating signed URL", Details = ex.Message });
             }
         }
-    
     }
 }

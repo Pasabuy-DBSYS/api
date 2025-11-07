@@ -42,6 +42,8 @@ builder.Services.AddScoped<IVerificationInfoRepository, VerificationInfoReposito
 builder.Services.AddScoped<IChatMessagesRepository, ChatMessagesRepository>();
 builder.Services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
 builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
+builder.Services.AddScoped<IPhoneVerificationRepository, PhoneVerificationRepository>();
+builder.Services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
 
 // Dependency Injections [Services]
 builder.Services.AddScoped<IUserService, UserService>();
@@ -52,6 +54,8 @@ builder.Services.AddScoped<IVerificationInfoService, VerificationInfoService>();
 builder.Services.AddScoped<IChatMessagesService, ChatMessagesService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAwsS3Service, AwsS3Service>();
+builder.Services.AddScoped<IPhoneVerificationServices, PhoneVerificationServices>();
+builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 
 
 // PasswordHasher DI
@@ -67,6 +71,9 @@ builder.Services.AddSingleton<TokenProvider>();
 // Authentication AND Autherization
 builder.Services.AddAuthorization(options =>
 {
+    options.AddPolicy("VerifiedOnly", policy =>
+        policy.RequireClaim("Verification Status", VerificationInfoStatus.ACCEPTED.ToString()));
+
     options.AddPolicy("CourierOnly", policy =>
         policy.RequireRole(Roles.COURIER.ToString())
             .RequireClaim("Verification Status", VerificationInfoStatus.ACCEPTED.ToString()));

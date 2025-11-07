@@ -4,20 +4,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PasabuyAPI.Models
 {
-    [Index(nameof(PhoneNumber), nameof(VerificationCode), IsUnique = true)]
-    public class PhoneVerification
+    [Index(nameof(Email), nameof(VerificationCode), IsUnique = true)]
+    public class EmailVerification
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long PhoneVerificationId { get; set; }
+        public long EmailVerificationId { get; set; }
 
         [Required]
-        [Phone]
-        public string PhoneNumber { get; set; }
+        [EmailAddress]
+        public required string Email { get; set; }
 
         [Required]
         [StringLength(5)]
-        public string? VerificationCode { get; set; }
+        public required string VerificationCode { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -7,6 +7,5 @@ namespace PasabuyAPI.DTOs.Responses
         public DateTime CreatedAt { get; set; }
         public DateTime? ClosedAt { get; set; }
         public bool IsActive { get; set; }
-        public List<ChatMessagesResponseDTO> ChatMessages { get; set; } = [];
     }
 }

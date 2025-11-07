@@ -13,6 +13,8 @@ namespace PasabuyAPI.Data
         public DbSet<VerificationInfo> VerificationInfo { get; set; }
         public DbSet<ChatMessages> ChatMessages { get; set; }
         public DbSet<ChatRooms> ChatRooms { get; set; }
+        public DbSet<PhoneVerification> PhoneVerifications { get; set; }
+        public DbSet<EmailVerification> EmailVerifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -85,8 +87,6 @@ namespace PasabuyAPI.Data
             modelBuilder.Entity<Payments>()
                 .HasIndex(p => p.TransactionId)
                 .IsUnique();
-            
-            
         }
     }
 }

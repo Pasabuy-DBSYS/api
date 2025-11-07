@@ -32,7 +32,8 @@ namespace PasabuyAPI.Models
 
         [Column(TypeName = "decimal(10,2)")]
         public decimal ActualDistance { get; set; }
-        public string Address { get; set; } = string.Empty;
+        public string DestinationAddress { get; set; } = string.Empty;
+        public string CustomerAddress { get; set; } = string.Empty;
         public DateTime EstimatedDeliveryTime { get; set; }
         public DateTime? ActualPickupTime { get; set; }
         public DateTime? ActualDeliveryTime { get; set; }

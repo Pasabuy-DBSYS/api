@@ -29,10 +29,7 @@ namespace PasabuyAPI.Controllers
             if (!long.TryParse(userIdClaim, out var userId))
                 return BadRequest("Invalid user ID format.");
 
-            if (!await userService.VerifyUser(userId))
-            {
-                return Unauthorized("User not verified");
-            }
+            
 
             List<OrderResponseDTO> orders = await orderService.GetOrdersAsync();
             return Ok(orders);
@@ -49,11 +46,6 @@ namespace PasabuyAPI.Controllers
 
             if (!long.TryParse(userIdClaim, out var userId))
                 return BadRequest("Invalid user ID format.");
-
-            if (!await userService.VerifyUser(userId))
-            {
-                return Unauthorized("User not verified");
-            }
 
             OrderResponseDTO? response = await orderService.GetOrderByOrderId(id);
             if (response == null) return NotFound($"Order id [{id}] not found");
@@ -73,10 +65,7 @@ namespace PasabuyAPI.Controllers
             if (!long.TryParse(userIdClaim, out var userId))
                 return BadRequest("Invalid user ID format.");
 
-            if (!await userService.VerifyUser(userId))
-            {
-                return Unauthorized("User not verified");
-            }
+            
 
             List<OrderResponseDTO> pendingOrders = await orderService.GetAllOrdersByStatus(status);
 
@@ -95,11 +84,6 @@ namespace PasabuyAPI.Controllers
             if (!long.TryParse(userIdClaim, out var customerId))
                 return BadRequest("Invalid user ID format.");
 
-            if (!await userService.VerifyUser(customerId))
-            {
-                return Unauthorized("User not verified");
-            }
-
             List<OrderResponseDTO> ordersByUser = await orderService.GetAllOrdersByCustomerIdAsync(customerId);
 
             return Ok(ordersByUser);
@@ -116,11 +100,6 @@ namespace PasabuyAPI.Controllers
 
             if (!long.TryParse(userIdClaim, out var courierId))
                 return BadRequest("Invalid user ID format.");
-
-            if (!await userService.VerifyUser(courierId))
-            {
-                return Unauthorized("User not verified");
-            }
 
             List<OrderResponseDTO> ordersByUser = await orderService.GetAllOrdersByCourierIdAsync(courierId);
 
@@ -171,11 +150,6 @@ namespace PasabuyAPI.Controllers
                 return Forbid("Invalid token — user ID not found.");
             }
             
-            if(!await userService.VerifyUser(currentUserId))
-            {
-                return Unauthorized("User not verified.");
-            }
-
             OrderResponseDTO responseDTO = await orderService.UpdateStatusAsync(orderId, status, currentUserId);
 
             await hubContext.Clients.All.SendAsync("OrderStatusUpdated", responseDTO);
