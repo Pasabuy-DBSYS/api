@@ -42,7 +42,7 @@ public class OrderService(IOrderRepository orderRepository, IDeliveryDetailsRepo
             ActualDistance = orderData.DeliveryDistance,
             DeliveryNotes = orderData.DeliveryNotes,
             CustomerAddress = orderData.CustomerAddress,
-            DestinationAddress = orderData.DistinationAddress
+            DestinationAddress = orderData.DestinationAddress
         });
 
         Payments payments = await paymentsRepository.CreatePayment(order.Priority, orderData.DeliveryDistance, new()
