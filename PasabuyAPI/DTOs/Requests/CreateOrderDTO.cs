@@ -13,7 +13,7 @@ namespace PasabuyAPI.DTOs.Requests
         public decimal LocationLongitude { get; set; }
         public decimal CustomerLatitude { get; set; }
         public decimal CustomerLongitude { get; set; }
-        public string DistinationAddress { get; set; } = string.Empty;
+        public string DestinationAddress { get; set; } = string.Empty;
         public string CustomerAddress { get; set; } = string.Empty;
         public decimal DeliveryDistance { get; set; }
         public string DeliveryNotes { get; set; } = string.Empty;
