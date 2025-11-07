@@ -189,6 +189,6 @@ app.UseCors("AllowAll");
 app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapHub<ChatHub>("/chatsHub");  // Chat hub endpoint
-app.MapHub<OrdersHub>("/ordersHub"); // Orders hub endpoint
+app.MapHub<ChatHub>("api/hubs/chatsHub");  // Chat hub endpoint
+app.MapHub<OrdersHub>("api/hubs/ordersHub"); // Orders hub endpoint
 app.Run();
