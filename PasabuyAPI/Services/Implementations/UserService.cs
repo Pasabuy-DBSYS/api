@@ -6,10 +6,11 @@ using PasabuyAPI.Services.Interfaces;
 using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.Enums;
 using PasabuyAPI.Exceptions;
+using PasabuyAPI.Configurations.Jwt;
 
 namespace PasabuyAPI.Services.Implementations
 {
-    public class UserService(IUserRespository userRepository, IVerificationInfoRepository verificationInfoRepository) : IUserService
+    public class UserService(IUserRespository userRepository, IVerificationInfoRepository verificationInfoRepository, TokenProvider tokenProvider) : IUserService
     {
         public async Task<UserResponseDTO?> GetUserByIdAsync(long id)
         {
@@ -95,9 +96,15 @@ namespace PasabuyAPI.Services.Implementations
             return await userRepository.UpdateRole(userId, role);
         }
 
-        public async Task<bool> VerifyUser(long userId)
+        public async Task<string> VerifyUser(long userId)
         {
-            return await userRepository.VerifyUser(userId);
+            if (!await userRepository.VerifyUser(userId))
+                return null;
+
+            Users user = await userRepository.GetUserByIdAsync(userId) ?? throw new NotFoundException("User not found");
+
+            return tokenProvider.Create(user);
+
         }
     }
 }

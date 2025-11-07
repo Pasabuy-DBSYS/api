@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Identity;
@@ -139,17 +140,17 @@ namespace PasabuyAPI.Repositories.Implementations
 
         public async Task<bool> HasActiveOrderAsync(long userId)
         {
+            Status[] activeStatuses = [Status.PENDING, Status.ACCEPTED, Status.IN_TRANSIT];
+
             return await context.Orders.AnyAsync(o =>
-                (o.CustomerId == userId || o.CourierId == userId)
-                && o.Status >= Status.PENDING
-                && o.Status < Status.DELIVERED
-                );
+                (o.CustomerId == userId || o.CourierId == userId) &&
+                activeStatuses.Contains(o.Status));
         }
 
         public async Task<bool> VerifyUser(long userId)
         {
             return await context.Users.AnyAsync(u => u.UserIdPK == userId &&
-                    u.VerificationInfo.VerificationInfoStatus == VerificationInfoStatus.ACCEPTED);
+                    u.VerificationInfo.VerificationInfoStatus >= VerificationInfoStatus.ACCEPTED);
         }
     }
 }

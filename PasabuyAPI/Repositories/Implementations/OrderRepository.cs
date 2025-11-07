@@ -96,6 +96,7 @@ namespace PasabuyAPI.Repositories.Implementations
                 .Include(o => o.Customer)
                 .Include(o => o.DeliveryDetails)
                 .Include(o => o.Payment)
+                .Include(o => o.ChatRoom)
                 .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
                 ?? trackedOrder;
         }
@@ -116,7 +117,7 @@ namespace PasabuyAPI.Repositories.Implementations
             order.Updated_at = DateTime.UtcNow;
             order.Status = status;
 
-            if (status == Status.DELIVERED && order.DeliveryDetails != null)
+            if (status >= Status.DELIVERED && order.DeliveryDetails != null)
             {
                 order.DeliveryDetails.ActualDeliveryTime = DateTime.UtcNow;
                 order.Payment.PaidAt = DateTime.UtcNow;

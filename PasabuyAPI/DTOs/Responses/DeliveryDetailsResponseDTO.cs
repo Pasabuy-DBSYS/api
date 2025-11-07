@@ -11,7 +11,8 @@ namespace PasabuyAPI.DTOs.Responses
         public decimal CourierLongitude { get; set; }
         public decimal CustomerLatitude { get; set; }
         public decimal CustomerLongitude { get; set; }
-        public string Address { get; set; } = string.Empty;
+        public string DestinationAddress { get; set; } = string.Empty;
+        public string CustomerAddress { get; set; } = string.Empty;
         public DateTime EstimatedDeliveryTime { get; set; }
         public DateTime ActualDeliveryTime { get; set; }
         public DateTime ActualPickupTime { get; set; }

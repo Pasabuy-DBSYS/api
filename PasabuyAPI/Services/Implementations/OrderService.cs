@@ -28,7 +28,7 @@ public class OrderService(IOrderRepository orderRepository, IDeliveryDetailsRepo
         {
             CustomerId = orderData.CustomerId,
             Request = orderData.Request,
-            Status = orderData.Status,
+            Status = Status.PENDING,
             Priority = orderData.Priority,
         });
 
@@ -41,14 +41,16 @@ public class OrderService(IOrderRepository orderRepository, IDeliveryDetailsRepo
             CustomerLongitude = orderData.CustomerLongitude,
             ActualDistance = orderData.DeliveryDistance,
             DeliveryNotes = orderData.DeliveryNotes,
-            Address = orderData.Address
+            CustomerAddress = orderData.CustomerAddress,
+            DestinationAddress = orderData.DistinationAddress
         });
 
         Payments payments = await paymentsRepository.CreatePayment(order.Priority, orderData.DeliveryDistance, new()
         {
             OrderIdFK = order.OrderIdPK,
             PaymentMethod = PaymentMethod.CASH,
-            PaymentStatus = PaymentStatus.PENDING
+            PaymentStatus = PaymentStatus.PENDING,
+            TipAmount = orderData.TipFee
         });
 
         var response = order.Adapt<OrderResponseDTO>();
