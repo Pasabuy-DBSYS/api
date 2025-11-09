@@ -66,28 +66,37 @@ namespace PasabuyAPI.Services.Implementations
             var resourceUrl = $"{_cloudFrontDomain.TrimEnd('/')}/{key}";
             var expiresOn = DateTimeOffset.UtcNow.Add(validFor).ToUnixTimeSeconds();
 
-            // Create policy
+            // Create CloudFront policy JSON
             var policy = $@"{{""Statement"":[{{""Resource"":""{resourceUrl}"",""Condition"":{{""DateLessThan"":{{""AWS:EpochTime"":{expiresOn}}}}}}}]}}";
-            
-            // Load and parse private key
-            var privateKeyText = File.ReadAllText(_privateKeyPath);
+
+            // ✅ Load private key: from Azure env var (Base64) or fallback to file
+            string privateKeyText;
+            var privateKeyBase64 = config["AWS:CloudFrontPrivateKey"];
+
+            if (!string.IsNullOrEmpty(privateKeyBase64))
+            {
+                // Decode Base64 PEM text stored in Azure App Settings
+                privateKeyText = Encoding.UTF8.GetString(Convert.FromBase64String(privateKeyBase64));
+            }
+            else
+            {
+                // Fallback for local development
+                privateKeyText = File.ReadAllText(_privateKeyPath);
+            }
+
             using var rsa = RSA.Create();
             rsa.ImportFromPem(privateKeyText);
 
             // Sign the policy
             var policyBytes = Encoding.UTF8.GetBytes(policy);
             var signatureBytes = rsa.SignData(policyBytes, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
-            
+
             // Base64 encode and make URL-safe
             var signature = Convert.ToBase64String(signatureBytes)
-                .Replace("+", "-")
-                .Replace("=", "_")
-                .Replace("/", "~");
-                
+                .Replace("+", "-").Replace("=", "_").Replace("/", "~");
+
             var encodedPolicy = Convert.ToBase64String(policyBytes)
-                .Replace("+", "-")
-                .Replace("=", "_")
-                .Replace("/", "~");
+                .Replace("+", "-").Replace("=", "_").Replace("/", "~");
 
             return $"{resourceUrl}?Policy={encodedPolicy}&Signature={signature}&Key-Pair-Id={_keyPairId}";
         }
