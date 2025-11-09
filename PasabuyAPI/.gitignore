@@ -9,3 +9,5 @@ obj/
 Keys/
 *.pem
 *.key
+
+publish/

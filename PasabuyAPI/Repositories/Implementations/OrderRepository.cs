@@ -141,15 +141,15 @@ namespace PasabuyAPI.Repositories.Implementations
                             .ToListAsync();
         }
 
-        public async Task<List<Orders>> GetAllOrdersByCustomerId(long customerId)
+        public async Task<List<Orders>> GetAllOrdersByCustomerId(long customerId) // Get all past order
         {
             return await _context.Orders
                             .Where(o => o.CustomerId == customerId)
                             .Include(o => o.Customer)               // optional: eager load related data
                             .Include(o => o.DeliveryDetails)        // optional: if you need delivery info
                             .Include(o => o.Payment)
-                            .OrderBy(o => ActiveStatuses.Contains(o.Status) ? 0 : 1)
-                            .ThenByDescending(o => o.Updated_at)
+                            .Where(o => !ActiveStatuses.Contains(o.Status))
+                            .OrderByDescending(o => o.Updated_at)
                             .ToListAsync();
         }
 
@@ -161,8 +161,8 @@ namespace PasabuyAPI.Repositories.Implementations
                             .Include(o => o.Courier)
                             .Include(o => o.DeliveryDetails)
                             .Include(o => o.Payment)
-                            .OrderBy(o => ActiveStatuses.Contains(o.Status) ? 0 : 1)
-                            .ThenByDescending(o => o.Updated_at)
+                            .Where(o => !ActiveStatuses.Contains(o.Status))
+                            .OrderByDescending(o => o.Updated_at)
                             .ToListAsync();
         }
 

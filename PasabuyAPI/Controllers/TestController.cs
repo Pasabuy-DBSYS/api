@@ -16,5 +16,11 @@ namespace PasabuyAPI.Controllers
         {
             return "Hello";
         }
+
+        [HttpGet("test")]
+        public string Test()
+        {
+            return "Testing";
+        }
     }
 }

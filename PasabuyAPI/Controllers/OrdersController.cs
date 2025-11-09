@@ -16,7 +16,7 @@ namespace PasabuyAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OrdersController(IOrderService orderService, IHubContext<OrdersHub> hubContext, IUserService userService) : ControllerBase
+    public class OrdersController(IOrderService orderService, IHubContext<OrdersHub> hubContext) : ControllerBase
     {
         [Authorize]
         [HttpGet]
@@ -74,8 +74,8 @@ namespace PasabuyAPI.Controllers
         }
 
         [Authorize]
-        [HttpGet("customer")]
-        public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByCustomerIdAsync()
+        [HttpGet("history/customer")]
+        public async Task<ActionResult<List<OrderResponseDTO>>> GetOrderHistoryByCustomerIdAsync()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -91,8 +91,8 @@ namespace PasabuyAPI.Controllers
         }
 
         [Authorize]
-        [HttpGet("courier")]
-        public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersByCourierIdAsync()
+        [HttpGet("history/courier")]
+        public async Task<ActionResult<List<OrderResponseDTO>>> GetOrderHistoryByCourierIdAsync()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
