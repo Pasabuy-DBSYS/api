@@ -15,6 +15,8 @@ namespace PasabuyAPI.Repositories.Interfaces
         Task<List<Orders>> GetAllOrdersByStatus(Status status);
         Task<List<Orders>> GetAllOrdersByCustomerId(long customerId);
         Task<List<Orders>> GetAllOrdersByCourierId(long courierId);
+        Task<Orders> GetActiveOrderCustomer(long customerId);
+        Task<Orders> GetActiveOrderCourier(long courierId);
 
         //Helper Method
         Task<bool> IsUserAvailable(long userId);

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.Enums;
+using PasabuyAPI.Exceptions;
 using PasabuyAPI.Hubs;
 using PasabuyAPI.Models;
 using PasabuyAPI.Repositories.Implementations;
@@ -138,7 +139,7 @@ namespace PasabuyAPI.Controllers
 
             return StatusCode(201, responseDTO);
         }
-        
+
         [Authorize]
         [HttpPatch("update/{orderId}/{status}")]
         public async Task<ActionResult<OrderResponseDTO>> UpdateOrderStatusAsync(Status status, long orderId)
@@ -149,12 +150,52 @@ namespace PasabuyAPI.Controllers
             {
                 return Forbid("Invalid token — user ID not found.");
             }
-            
+
             OrderResponseDTO responseDTO = await orderService.UpdateStatusAsync(orderId, status, currentUserId);
 
             await hubContext.Clients.All.SendAsync("OrderStatusUpdated", responseDTO);
 
             return Ok(responseDTO);
+        }
+
+        [Authorize]
+        [HttpGet("customer/activeorder")]
+        public async Task<ActionResult<OrderResponseDTO>> GetActiveOrderCustomer()
+        {
+            var currentUser = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!long.TryParse(currentUser, out var currentUserId))
+                return Forbid("Invalid token - user ID not found");
+
+            try
+            {
+                OrderResponseDTO activeOrder = await orderService.GetActiveOrderCustomer(currentUserId);
+                return Ok(activeOrder);
+            }
+            catch (NotFoundException)
+            {
+                return NoContent();
+            }
+        }
+
+        [Authorize]
+        [HttpGet("courier/activeorder")]
+        public async Task<ActionResult<OrderResponseDTO>> GetActiveOrderCourier()
+        {
+            var currentUser = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!long.TryParse(currentUser, out var currentUserId))
+                return Forbid("Invalid token - user ID not found");
+
+            try
+            {
+                OrderResponseDTO activeOrder = await orderService.GetActiveOrderCourier(currentUserId);
+                return Ok(activeOrder);
+            }
+            catch (NotFoundException)
+            {
+                return NoContent();
+            }
         }
         
     }

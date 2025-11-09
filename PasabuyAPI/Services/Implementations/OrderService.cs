@@ -97,4 +97,17 @@ public class OrderService(IOrderRepository orderRepository, IDeliveryDetailsRepo
 
         return ordersByCourierId.Adapt<List<OrderResponseDTO>>();
     }
+
+    public async Task<OrderResponseDTO> GetActiveOrderCustomer(long customerId)
+    {
+        Orders activeOrder = await orderRepository.GetActiveOrderCustomer(customerId);
+
+        return activeOrder.Adapt<OrderResponseDTO>();
+    }
+    public async Task<OrderResponseDTO> GetActiveOrderCourier(long courierId)
+    {
+        Orders activeOrder = await orderRepository.GetActiveOrderCourier(courierId);
+
+        return activeOrder.Adapt<OrderResponseDTO>();
+    }
 }

@@ -166,6 +166,28 @@ namespace PasabuyAPI.Repositories.Implementations
                             .ToListAsync();
         }
 
+        public async Task<Orders> GetActiveOrderCustomer(long customerId)
+        {
+            return await _context.Orders
+                            .Include(o => o.Customer)
+                            .Include(o => o.Courier)
+                            .Include(o => o.DeliveryDetails)
+                            .Include(o => o.Payment)
+                            .FirstOrDefaultAsync(o => o.CustomerId == customerId) ?? throw new NotFoundException($"There is no active order for customer {customerId}");
+
+        }
+        
+        public async Task<Orders> GetActiveOrderCourier(long courierId)
+        {
+            return await _context.Orders
+                            .Include(o => o.Customer)
+                            .Include(o => o.Courier)
+                            .Include(o => o.DeliveryDetails)
+                            .Include(o => o.Payment)
+                            .FirstOrDefaultAsync(o => o.CourierId == courierId) ?? throw new NotFoundException($"There is no active order for customer {courierId}");
+                            
+        }
+
         // Helper Methods
         public async Task<bool> IsUserAvailable(long userId)
         {
