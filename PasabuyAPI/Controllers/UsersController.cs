@@ -21,6 +21,7 @@ namespace PasabuyAPI.Controllers
     {
         private readonly IUserService _userService = userService;
 
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<UserResponseDTO>>> GetUsersAsync()
         {
