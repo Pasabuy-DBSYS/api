@@ -61,6 +61,7 @@ jobs:
         with:
           app-name: 'pasabuyapi'
           slot-name: 'Production'
-          package: ${{env.DOTNET_ROOT}}/myapp
+          package: .
           
+
 
