@@ -9,7 +9,7 @@ namespace PasabuyAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     
-    public class TestController
+    public class TestController : ControllerBase
     {
         [HttpGet]
         public string Hello()
