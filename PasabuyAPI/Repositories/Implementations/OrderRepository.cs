@@ -10,6 +10,8 @@ namespace PasabuyAPI.Repositories.Implementations
     public class OrderRepository(PasabuyDbContext context) : IOrderRepository
     {
         private readonly PasabuyDbContext _context = context;
+        private static readonly Status[] ActiveStatuses = [Status.PENDING, Status.ACCEPTED, Status.IN_TRANSIT];
+        private static readonly Status[] CompletedStatuses = [Status.DELIVERED, Status.WATING_FOR_REVIEW, Status.REVIEWED];
         public async Task<List<Orders>> GetOrdersAsync()
         {
             return await _context.Orders
@@ -117,7 +119,7 @@ namespace PasabuyAPI.Repositories.Implementations
             order.Updated_at = DateTime.UtcNow;
             order.Status = status;
 
-            if (status >= Status.DELIVERED && order.DeliveryDetails != null)
+            if (CompletedStatuses.Contains(status) && order.DeliveryDetails != null)
             {
                 order.DeliveryDetails.ActualDeliveryTime = DateTime.UtcNow;
                 order.Payment.PaidAt = DateTime.UtcNow;
@@ -146,6 +148,8 @@ namespace PasabuyAPI.Repositories.Implementations
                             .Include(o => o.Customer)               // optional: eager load related data
                             .Include(o => o.DeliveryDetails)        // optional: if you need delivery info
                             .Include(o => o.Payment)
+                            .OrderBy(o => ActiveStatuses.Contains(o.Status) ? 0 : 1)
+                            .ThenByDescending(o => o.Updated_at)
                             .ToListAsync();
         }
 
@@ -157,16 +161,16 @@ namespace PasabuyAPI.Repositories.Implementations
                             .Include(o => o.Courier)
                             .Include(o => o.DeliveryDetails)
                             .Include(o => o.Payment)
+                            .OrderBy(o => ActiveStatuses.Contains(o.Status) ? 0 : 1)
+                            .ThenByDescending(o => o.Updated_at)
                             .ToListAsync();
         }
 
         // Helper Methods
         public async Task<bool> IsUserAvailable(long userId)
         {
-            var activeStatuses = new[] { Status.PENDING, Status.ACCEPTED, Status.IN_TRANSIT };
-
             bool hasActiveOrder = await _context.Orders.AnyAsync(o =>
-                activeStatuses.Contains(o.Status) &&
+                ActiveStatuses.Contains(o.Status) &&
                 (o.CourierId == userId || o.CustomerId == userId));
 
             return !hasActiveOrder;

@@ -44,6 +44,12 @@ namespace PasabuyAPI.Data
                 .HasForeignKey<Payments>(p => p.OrderIdFK)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Orders>()
+                .HasIndex(o => new { o.CustomerId, o.Status, o.Updated_at });
+
+            modelBuilder.Entity<Orders>()
+                .HasIndex(o => new { o.CourierId, o.Status, o.Updated_at });
+
             modelBuilder.Entity<Users>()
                 .HasOne(u => u.VerificationInfo)
                 .WithOne(v => v.User)
