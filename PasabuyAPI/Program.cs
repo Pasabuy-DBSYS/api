@@ -56,6 +56,7 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAwsS3Service, AwsS3Service>();
 builder.Services.AddScoped<IPhoneVerificationServices, PhoneVerificationServices>();
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
+builder.Services.AddScoped<IEmailServices, EmailServices>();
 
 
 // PasswordHasher DI

@@ -24,6 +24,9 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
+    <Content Include="EmailTemplates\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
