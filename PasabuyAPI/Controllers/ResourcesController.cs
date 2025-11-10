@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PasabuyAPI.Services.Interfaces;
 
-namespace Pasabuy.Controllers
+namespace PasabuyAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

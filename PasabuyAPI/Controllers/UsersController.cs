@@ -17,7 +17,7 @@ namespace PasabuyAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController(IUserService userService, IAwsS3Service awsS3Service) : ControllerBase
+    public class UsersController(IUserService userService) : ControllerBase
     {
         private readonly IUserService _userService = userService;
 
@@ -158,29 +158,6 @@ namespace PasabuyAPI.Controllers
             var response = await _userService.UpdateRole(userId, role);
 
             return Ok(response);
-        }
-
-        [Authorize]
-        [HttpGet("signed-url")]
-        public IActionResult GetSignedUrl([FromQuery] string key)
-        {
-            if (string.IsNullOrEmpty(key))
-                return BadRequest("Missing file key");
-
-            try
-            {
-                var url = awsS3Service.GenerateSignedUrl(key, TimeSpan.FromMinutes(10));
-                return Ok(new
-                {
-                    FileKey = key,
-                    SignedUrl = url,
-                    ExpiresInMinutes = 10
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = "Error generating signed URL", Details = ex.Message });
-            }
         }
     }
 }

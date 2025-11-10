@@ -1,8 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PasabuyAPI.DTOs.Requests
 {
     public class VerifyPhoneRequestDTO
     {
-        public string PhoneNumber { get; set; }
-        public string Code { get; set; }
+        [Phone]
+        public required string PhoneNumber { get; set; }
+        public required string Code { get; set; }
     }
 }

@@ -5,7 +5,8 @@ namespace PasabuyAPI.Services.Interfaces
 {
     public interface IChatMessagesService
     {
-        Task<ChatMessagesResponseDTO> SendMessage(SendMessageRequestDTO message);
+        Task<ChatMessagesResponseDTO> SendTextMessage(SendMessageRequestDTO message);
+        Task<ChatMessagesResponseDTO> SendImageMessage(SendImageMessageRequestDTO message);
         Task<List<ChatMessagesResponseDTO>> GetChatMessagesByRoomIdAsync(long roomId, long currentUserId);
     }
 }

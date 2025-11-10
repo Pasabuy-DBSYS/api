@@ -18,16 +18,30 @@ namespace PasabuyAPI.Controllers
         private readonly IHubContext<ChatHub> _chatHub = chatHub;
 
         [Authorize(Policy = "VerifiedOnly")]
-        [HttpPost("send")]
-        public async Task<ActionResult<ChatMessagesResponseDTO>> SendMessageAsync([FromBody] SendMessageRequestDTO sendMessageRequestDTO)
+        [HttpPost("send/text")]
+        public async Task<ActionResult<ChatMessagesResponseDTO>> SendTextMessageAsync([FromBody] SendMessageRequestDTO sendMessageRequestDTO)
         {
-            var savedMessage = await _chatMessagesService.SendMessage(sendMessageRequestDTO);
+            var savedMessage = await _chatMessagesService.SendTextMessage(sendMessageRequestDTO);
 
             await _chatHub.Clients
                     .Group(sendMessageRequestDTO.RoomIdFK.ToString())
                     .SendAsync("ReceiveMessage", savedMessage);
 
             return Ok(savedMessage);
+        }
+
+        [Authorize(Policy = "VerifiedOnly")]
+        [HttpPost("send/image")]
+        public async Task<ActionResult<ChatMessagesResponseDTO>> SendImageMessageAsync([FromForm] SendImageMessageRequestDTO sendMessageRequestDTO)
+        {
+            var savedMessage = await _chatMessagesService.SendImageMessage(sendMessageRequestDTO);
+
+            await _chatHub.Clients
+                    .Group(sendMessageRequestDTO.RoomIdFK.ToString())
+                    .SendAsync("ReceiveMessage", savedMessage);
+
+            return Ok(savedMessage);
+
         }
 
         [Authorize(Policy = "VerifiedOnly")]
