@@ -32,11 +32,11 @@ namespace PasabuyAPI.Models
         [Required, MaxLength(100)]
         public string LastName { get; set; } = string.Empty;
 
-        [Phone]
+        [Required, Phone]
         public string Phone { get; set; } = string.Empty;
 
+        [Required]
         public DateOnly Birthday { get; set; }
-
 
         public Roles CurrentRole { get; set; }
 

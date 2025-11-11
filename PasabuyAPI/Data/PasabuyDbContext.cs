@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore;
 using PasabuyAPI.Models;
 
@@ -89,10 +90,14 @@ namespace PasabuyAPI.Data
                 .WithOne(c => c.Order)
                 .HasForeignKey<ChatRooms>(c => c.OrderIdFK)
                 .OnDelete(DeleteBehavior.Restrict);
-                
+
             modelBuilder.Entity<Payments>()
                 .HasIndex(p => p.TransactionId)
                 .IsUnique();
+
+            modelBuilder.Entity<ChatMessages>()
+                .Property(cm => cm.MessageType)
+                .HasConversion<string>();
         }
     }
 }
