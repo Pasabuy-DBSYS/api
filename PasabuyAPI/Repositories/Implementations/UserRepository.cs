@@ -123,6 +123,17 @@ namespace PasabuyAPI.Repositories.Implementations
             return token;
         }
 
+        public async Task<Users> UpdateProfilePicture(long userId, string pfpPath)
+        {
+            Users target = await context.Users.Include(u => u.VerificationInfo).FirstOrDefaultAsync(u => u.UserIdPK == userId)
+                            ?? throw new NotFoundException($"User with id: {userId} not found");
+
+            target.ProfilePictureKey = pfpPath;
+            await context.SaveChangesAsync();
+
+            return target;
+        }
+
         // helpers
         public async Task<bool> ExistsByEmailAsync(string email)
         {

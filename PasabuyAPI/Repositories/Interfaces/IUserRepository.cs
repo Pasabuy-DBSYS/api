@@ -13,6 +13,7 @@ namespace PasabuyAPI.Repositories.Interfaces
         Task<Users> UpdateUserEmail(long userId, string email);
         Task<Users> UpdatePhoneNumber(long userId, string phoneNumber);
         Task<Users> UpdatePassword(long userId, string password);
+        Task<Users> UpdateProfilePicture(long userId, string pfpPath);
         Task<string> UpdateRole(long userId, Roles role);
 
         // helpers

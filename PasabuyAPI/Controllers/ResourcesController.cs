@@ -19,12 +19,12 @@ namespace PasabuyAPI.Controllers
 
             try
             {
-                var url = awsS3Service.GenerateSignedUrl(key, TimeSpan.FromMinutes(10));
+                var url = awsS3Service.GenerateSignedUrl(key, TimeSpan.FromMinutes(60));
                 return Ok(new
                 {
                     FileKey = key,
                     SignedUrl = url,
-                    ExpiresInMinutes = 10
+                    ExpiresInMinutes = 60
                 });
             }
             catch (Exception ex)

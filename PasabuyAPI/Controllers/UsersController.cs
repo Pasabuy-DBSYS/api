@@ -142,6 +142,26 @@ namespace PasabuyAPI.Controllers
         }
 
         [Authorize]
+        [HttpPatch("change/profile")]
+        public async Task<ActionResult<UserResponseDTO>> UpdateProfileAsync(
+            [FromForm] ChangeProfilePictureRequestDTO changeProfileRequestDTO)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+                return Unauthorized("Invalid token — user ID not found.");
+
+            if (!long.TryParse(userIdClaim, out var userId))
+                return BadRequest("Invalid user ID format.");
+
+            var response = await _userService.UpdateProfilePicture(userId, changeProfileRequestDTO.ProfilePicture);
+
+            return Ok(response);
+        }
+
+        [Authorize]
         [HttpPatch("change/role/{role}")]
         public async Task<ActionResult<string>> UpdateRoleAsync(Roles role)
         {

@@ -93,12 +93,25 @@ namespace PasabuyAPI.Services.Implementations
         {
             if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(confirmation))
                 throw new EmptyFieldException("Password cannot be empty");
-            
+
             if (password != confirmation)
                 throw new PasswordMismatchException("Password mismatch");
 
 
             var updatedUser = await userRepository.UpdatePassword(userId, password);
+            return updatedUser.Adapt<UserResponseDTO>();
+        }
+        
+        public async Task<UserResponseDTO> UpdateProfilePicture(long userId, IFormFile image)
+        {
+            if (image is null)
+                throw new NotFoundException("Image not found");
+
+            string key = $"profiles/{Guid.NewGuid()}";
+
+            string path = await awsS3Service.UploadFileAsync(image, key);
+
+            var updatedUser = await userRepository.UpdateProfilePicture(userId, path);
             return updatedUser.Adapt<UserResponseDTO>();
         }
 
