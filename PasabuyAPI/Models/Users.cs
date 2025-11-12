@@ -46,6 +46,7 @@ namespace PasabuyAPI.Models
 
         public long TotalDeliveries { get; set; } = 0;
         public long TotalOrders { get; set; } = 0;
+        public string ProfilePictureKey { get; set; } = "profiles/default.png";
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

@@ -19,6 +19,7 @@ namespace PasabuyAPI.DTOs.Responses
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public Roles CurrentRole { get; set; }
+        public string ProfilePictureKey { get; set; } = string.Empty;
         public VerificationInfoResponseDTO VerifiactionInfoDTO { get; set; } = null!;
     }
 }

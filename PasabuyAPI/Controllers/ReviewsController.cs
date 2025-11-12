@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Mapster;
 using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.DTOs.Requests;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PasabuyAPI.Controllers
 {
@@ -16,11 +17,14 @@ namespace PasabuyAPI.Controllers
     {
         private readonly IReviewsService _reviewsService = reviewsService;
 
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<ReviewResponseDTO>>> GetReviewsAsync()
         {
             return Ok(await _reviewsService.GetAllReviewsAsync());
         }
+
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<ReviewResponseDTO>> GetReviewAsync(long id)
         {
@@ -29,6 +33,8 @@ namespace PasabuyAPI.Controllers
 
             return Ok(review);
         }
+
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<ReviewResponseDTO>> CreateReviewAsync([FromBody] CreateReviewRequestDTO reviewData)
         {

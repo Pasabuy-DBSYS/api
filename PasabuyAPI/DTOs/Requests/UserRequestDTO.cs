@@ -22,22 +22,23 @@ namespace PasabuyAPI.DTOs.Requests
         [MaxLength(100)]
         public string? MiddleName { get; set; } = string.Empty;
 
-        [MaxLength(100)]
+        [Required, MaxLength(100)]
         public string LastName { get; set; } = string.Empty;
 
         [Required, Phone]
         public string Phone { get; set; } = string.Empty;
-
+        [Required]
         public DateOnly Birthday { get; set; }
 
         // File uploads handled manually with System.IO
-        public IFormFile? FrontId { get; set; }
-        public IFormFile? BackId { get; set; }
-        public IFormFile? Insurance { get; set; }
+        [Required]
+        public IFormFile FrontId { get; set; } = null!;
 
-        // Saved file paths -> changed later in the services
-        public string? FrontIdPath { get; set; }
-        public string? BackIdPath { get; set; }
-        public string? InsurancePath { get; set; }
+        [Required]
+        public IFormFile BackId { get; set; } = null!;
+        
+        [Required]
+        public IFormFile Insurance { get; set; } = null!;
+        public IFormFile? Profile { get; set; }
     }
 }

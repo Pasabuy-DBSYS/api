@@ -38,9 +38,9 @@ namespace PasabuyAPI.Services.Implementations
 
             return new VerificationInfoPathsResponseDTO
             {
-                FrontIdFileName = frontKey,
-                BackIdFileName = backKey,
-                InsuranceFileName = insuranceKey
+                FrontIdFileName = $"ids/{frontKey}",
+                BackIdFileName = $"ids/{backKey}",
+                InsuranceFileName = $"ids/{insuranceKey}"
             };
         }
 

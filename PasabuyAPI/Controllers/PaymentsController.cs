@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.Services.Interfaces;
@@ -8,6 +9,7 @@ namespace PasabuyAPI.Controllers
     [Route("api/[controller]")]
     public class PaymentsController(IPaymentsService paymentsService) : ControllerBase
     {
+        [Authorize(Policy = "VerifiedOnly")]
         [HttpGet("{transactionId}")]
         public async Task<ActionResult<PaymentsResponseDTO>> GetPaymentsByTransactionId(string transactionId)
         {
@@ -18,6 +20,7 @@ namespace PasabuyAPI.Controllers
             return Ok(responseDTO);
         }
 
+        [Authorize(Policy = "CourierOnly")]
         [HttpPost("propose/{orderId}")]
         public async Task<ActionResult<PaymentsResponseDTO>> ProposeItemsFeeAsync(long orderId, [FromBody] long itemsFee)
         {
@@ -28,6 +31,7 @@ namespace PasabuyAPI.Controllers
             return Ok(response);
         }
 
+        [Authorize(Policy ="CustomerOnly")]
         [HttpPatch("propose/accept/{orderId}")]
         public async Task<ActionResult<PaymentsResponseDTO>> AcceptProposedItemsFeeAsync(long orderId)
         {

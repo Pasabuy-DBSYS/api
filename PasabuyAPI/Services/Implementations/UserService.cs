@@ -10,7 +10,7 @@ using PasabuyAPI.Configurations.Jwt;
 
 namespace PasabuyAPI.Services.Implementations
 {
-    public class UserService(IUserRespository userRepository, IVerificationInfoRepository verificationInfoRepository, TokenProvider tokenProvider) : IUserService
+    public class UserService(IUserRespository userRepository, IVerificationInfoRepository verificationInfoRepository, TokenProvider tokenProvider,  IAwsS3Service awsS3Service) : IUserService
     {
         public async Task<UserResponseDTO?> GetUserByIdAsync(long id)
         {
@@ -39,14 +39,25 @@ namespace PasabuyAPI.Services.Implementations
             if (usernameExists)
                 throw new InvalidOperationException("Username already exists.");
 
-            var addedUser = await userRepository.AddUserAsync(user.Adapt<Users>());
+            var entity = user.Adapt<Users>();
+            
+            if (user.Profile is not null)
+            {
+                string pfpPath = $"profiles/{Guid.NewGuid()}";
+
+                entity.ProfilePictureKey = await awsS3Service.UploadFileAsync(user.Profile, pfpPath);
+            }
+            
+            var addedUser = await userRepository.AddUserAsync(entity);
+
+            var paths = await awsS3Service.UploadIDs(user.FrontId, user.BackId, user.Insurance);
 
             VerificationInfo verification = new()
             {
                 UserIdFK = addedUser.UserIdPK,
-                FrontIdPath = user.FrontIdPath,
-                BackIdPath = user.BackIdPath,
-                InsurancePath = user.InsurancePath,
+                FrontIdPath = paths.FrontIdFileName,
+                BackIdPath = paths.BackIdFileName,
+                InsurancePath = paths.InsuranceFileName,
                 VerificationInfoStatus = VerificationInfoStatus.PENDING,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow

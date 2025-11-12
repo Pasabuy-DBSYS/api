@@ -66,8 +66,6 @@ namespace PasabuyAPI.Controllers
             if (!long.TryParse(userIdClaim, out var userId))
                 return BadRequest("Invalid user ID format.");
 
-            
-
             List<OrderResponseDTO> pendingOrders = await orderService.GetAllOrdersByStatus(status);
 
             return Ok(pendingOrders);
@@ -125,13 +123,9 @@ namespace PasabuyAPI.Controllers
             var courierIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (long.TryParse(courierIdClaim, out var courierId))
-            {
                 acceptOrderDTO.CourierId = courierId;
-            }
             else
-            {
                 return BadRequest("Invalid courier ID in token.");
-            }
 
             OrderResponseDTO responseDTO = await orderService.AcceptOrderAsync(acceptOrderDTO, orderId);
 
@@ -147,9 +141,7 @@ namespace PasabuyAPI.Controllers
             var currentUser = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (!long.TryParse(currentUser, out var currentUserId))
-            {
                 return Forbid("Invalid token — user ID not found.");
-            }
 
             OrderResponseDTO responseDTO = await orderService.UpdateStatusAsync(orderId, status, currentUserId);
 
