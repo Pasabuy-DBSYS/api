@@ -169,11 +169,6 @@ builder.Services.AddMvc(options =>
 
 var app = builder.Build();
 
-
-// Websockets
-
-
-
 // Enable Swagger middleware in development
 if (app.Environment.IsDevelopment())
 {
