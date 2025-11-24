@@ -82,6 +82,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CustomerOnly", policy =>
         policy.RequireRole(Roles.CUSTOMER.ToString())
             .RequireClaim("Verification Status", VerificationInfoStatus.ACCEPTED.ToString()));
+
+    options.AddPolicy("AdminOnly", policy=>
+        policy.RequireRole(Roles.ADMIN.ToString()));
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -111,7 +114,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             {
                 var accessToken = context.Request.Query["access_token"];
                 var path = context.HttpContext.Request.Path;
-                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatsHub"))
+                if (!string.IsNullOrEmpty(accessToken) && 
+                    (path.StartsWithSegments("/chatsHub") || path.StartsWithSegments("/api/hubs")))
                 {
                     context.Token = accessToken;
                 }
@@ -154,10 +158,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
         policy => policy
-            .AllowAnyOrigin()
+            .SetIsOriginAllowed(origin => true) // Allow any origin
             .AllowAnyHeader()
-            .AllowAnyMethod());
-            // .AllowCredentials());
+            .AllowAnyMethod()
+            .AllowCredentials()); // Required for SignalR
 });
 
 

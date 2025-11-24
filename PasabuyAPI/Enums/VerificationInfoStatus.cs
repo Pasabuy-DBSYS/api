@@ -4,6 +4,7 @@ namespace PasabuyAPI.Enums
     {
         PENDING,
         ACCEPTED,
-        REJECTED
+        REJECTED,
+        SUSPENDED
     }
 }

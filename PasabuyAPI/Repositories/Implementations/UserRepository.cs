@@ -163,5 +163,22 @@ namespace PasabuyAPI.Repositories.Implementations
             return await context.Users.AnyAsync(u => u.UserIdPK == userId &&
                     u.VerificationInfo.VerificationInfoStatus >= VerificationInfoStatus.ACCEPTED);
         }
+
+        public async Task<Users> AddAdmin(Users user)
+        {
+            user.PasswordHash = passwordHasher.HashPassword(user, user.PasswordHash);
+            user.CurrentRole = Roles.ADMIN;
+
+            await context.Users.AddAsync(user);
+            await context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<List<Users>> GetUsersByVerificationStatus(VerificationInfoStatus verificationInfoStatus)
+        {
+            return await context.Users
+                            .Include(u => u.VerificationInfo.VerificationInfoStatus == verificationInfoStatus)
+                            .ToListAsync();
+        }
     }
 }

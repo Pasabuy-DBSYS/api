@@ -22,7 +22,7 @@ namespace PasabuyAPI.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(400, e);
+                return StatusCode(400, new { error = e.Message });
             }
         }
 

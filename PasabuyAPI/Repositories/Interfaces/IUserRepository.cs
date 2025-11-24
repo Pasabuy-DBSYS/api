@@ -16,6 +16,10 @@ namespace PasabuyAPI.Repositories.Interfaces
         Task<Users> UpdateProfilePicture(long userId, string pfpPath);
         Task<string> UpdateRole(long userId, Roles role);
 
+        Task<Users> AddAdmin(Users user);
+        Task<List<Users>> GetUsersByVerificationStatus(VerificationInfoStatus verificationInfoStatus);
+
+
         // helpers
         Task<bool> ExistsByEmailAsync(string email);
         Task<bool> ExistsByUsernameAsync(string username);

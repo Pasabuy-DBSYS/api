@@ -17,5 +17,7 @@ namespace PasabuyAPI.DTOs.Responses
         public DateTime ActualDeliveryTime { get; set; }
         public DateTime ActualPickupTime { get; set; }
         public string DeliveryNotes { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

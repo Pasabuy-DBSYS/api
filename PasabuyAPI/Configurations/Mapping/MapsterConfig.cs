@@ -34,6 +34,20 @@ namespace PasabuyAPI.Configurations.Mapping
                 .Ignore(dest => dest.VerificationInfo)
                 .Map(dest => dest.PasswordHash, src => src.Password); // if not hashing yet
 
+            TypeAdapterConfig<CreateAdminRequestDTO, Users>.NewConfig()
+                .Ignore(dest => dest.UserIdPK)
+                .Ignore(dest => dest.CustomerOrders)
+                .Ignore(dest => dest.CourierOrders)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt)
+                .Ignore(dest => dest.VerificationInfo)
+                .Ignore(dest => dest.RatingAverage)
+                .Ignore(dest => dest.TotalDeliveries)
+                .Ignore(dest => dest.TotalOrders)
+                .Ignore(dest => dest.ProfilePictureKey)
+                .Ignore(dest => dest.CurrentRole)
+                .Map(dest => dest.PasswordHash, src => src.Password);
+
             TypeAdapterConfig<Orders, OrderResponseDTO>.NewConfig()
                 .Map(dest => dest.OrderIdPK, src => src.OrderIdPK)
                 .Map(dest => dest.Request, src => src.Request)
