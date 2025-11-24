@@ -130,5 +130,34 @@ namespace PasabuyAPI.Services.Implementations
             return tokenProvider.Create(user);
 
         }
+
+        public async Task<UserResponseDTO> AddAdmin(CreateAdminRequestDTO adminRequestDTO)
+        {
+            Users admin = await userRepository.AddAdmin(adminRequestDTO.Adapt<Users>());
+
+            VerificationInfo verification = new()
+            {
+                UserIdFK = admin.UserIdPK,
+                FrontIdPath = string.Empty,
+                BackIdPath = string.Empty,
+                InsurancePath = string.Empty,
+                VerificationInfoStatus = VerificationInfoStatus.ACCEPTED,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var addedVerification = await verificationInfoRepository.CreateVerificationInfoAsync(verification);
+
+            var addeduser = admin.Adapt<UserResponseDTO>();
+            addeduser.VerifiactionInfoDTO = addedVerification.Adapt<VerificationInfoResponseDTO>();
+            return addeduser;
+        }
+
+        public async Task<List<UserResponseDTO>> GetUsersByVerificationStatus(VerificationInfoStatus verificationInfoStatus)
+        {
+            List<Users> user = await userRepository.GetUsersByVerificationStatus(verificationInfoStatus);
+
+            return user.Adapt<List<UserResponseDTO>>();
+        }
     }
 }

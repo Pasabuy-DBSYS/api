@@ -124,6 +124,14 @@ namespace PasabuyAPI.Repositories.Implementations
                 order.DeliveryDetails.ActualDeliveryTime = DateTime.UtcNow;
                 order.Payment.PaidAt = DateTime.UtcNow;
                 order.Payment.PaymentStatus = PaymentStatus.COMPLETED;
+                order.ChatRoom.ClosedAt = DateTime.UtcNow;
+                order.ChatRoom.IsActive = false;
+            }
+
+            if(order.ChatRoom != null && status == Status.CANCELLED)
+            {
+                order.ChatRoom.ClosedAt = DateTime.UtcNow;
+                order.ChatRoom.IsActive = false;
             }
 
             await _context.SaveChangesAsync();

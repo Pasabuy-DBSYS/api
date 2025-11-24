@@ -21,7 +21,7 @@ namespace PasabuyAPI.Controllers
     {
         private readonly IUserService _userService = userService;
 
-        [Authorize]
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet]
         public async Task<ActionResult<List<UserResponseDTO>>> GetUsersAsync()
         {
@@ -46,7 +46,7 @@ namespace PasabuyAPI.Controllers
             return Ok(user);
         }
 
-        [Authorize]
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserResponseDTO>> GetUserAsync(long id)
         {
@@ -176,6 +176,34 @@ namespace PasabuyAPI.Controllers
                 return BadRequest("Invalid user ID format.");
 
             var response = await _userService.UpdateRole(userId, role);
+
+            return Ok(response);
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpGet("verification/{verification}")]
+        public async Task<ActionResult<List<UserResponseDTO>>> GetUsersByVerificationStatus(VerificationInfoStatus verification)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                return Unauthorized("Invalid token — user ID not found.");
+
+            var response = await _userService.GetUsersByVerificationStatus(verification);
+
+            return Ok(response);
+        }
+        
+        [HttpPost("admin")]
+        public async Task<ActionResult<UserResponseDTO>> CreateAdminAsync([FromBody] CreateAdminRequestDTO createAdminRequestDTO)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            
+            var response = await _userService.AddAdmin(createAdminRequestDTO);
 
             return Ok(response);
         }

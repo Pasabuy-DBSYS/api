@@ -38,5 +38,7 @@ namespace PasabuyAPI.Models
         public DateTime? ActualPickupTime { get; set; }
         public DateTime? ActualDeliveryTime { get; set; }
         public string DeliveryNotes { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

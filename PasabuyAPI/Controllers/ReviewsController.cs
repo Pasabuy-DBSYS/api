@@ -17,7 +17,7 @@ namespace PasabuyAPI.Controllers
     {
         private readonly IReviewsService _reviewsService = reviewsService;
 
-        [Authorize]
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet]
         public async Task<ActionResult<List<ReviewResponseDTO>>> GetReviewsAsync()
         {

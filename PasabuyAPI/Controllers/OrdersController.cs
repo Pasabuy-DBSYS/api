@@ -18,7 +18,7 @@ namespace PasabuyAPI.Controllers
     [Route("api/[controller]")]
     public class OrdersController(IOrderService orderService, IHubContext<OrdersHub> hubContext) : ControllerBase
     {
-        [Authorize]
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet]
         public async Task<ActionResult<List<OrderResponseDTO>>> GetAllOrdersAsync()
         {
@@ -111,7 +111,7 @@ namespace PasabuyAPI.Controllers
         {
             OrderResponseDTO response = await orderService.CreateOrder(orderRequest);
 
-            await hubContext.Clients.All.SendAsync("OrderCreated", response);
+            await hubContext.Clients.Groups("COURIER").SendAsync("OrderCreated", response);
 
             return StatusCode(201, response);
         }
@@ -129,7 +129,8 @@ namespace PasabuyAPI.Controllers
 
             OrderResponseDTO responseDTO = await orderService.AcceptOrderAsync(acceptOrderDTO, orderId);
 
-            await hubContext.Clients.All.SendAsync("OrderAccepted", responseDTO);
+            await hubContext.Clients.Group("COURIER").SendAsync("OrderAccepted", responseDTO);
+            await hubContext.Clients.Group($"ORDER_{orderId}").SendAsync("OrderAccepted", responseDTO);
 
             return StatusCode(201, responseDTO);
         }
@@ -145,7 +146,7 @@ namespace PasabuyAPI.Controllers
 
             OrderResponseDTO responseDTO = await orderService.UpdateStatusAsync(orderId, status, currentUserId);
 
-            await hubContext.Clients.All.SendAsync("OrderStatusUpdated", responseDTO);
+            await hubContext.Clients.Group($"ORDER_{orderId}").SendAsync("OrderStatusUpdated", responseDTO);
 
             return Ok(responseDTO);
         }
@@ -189,6 +190,20 @@ namespace PasabuyAPI.Controllers
                 return NoContent();
             }
         }
-        
+
+        [Authorize(Policy = "VerifiedOnly")]
+        [HttpPatch("update/courier-location/{orderId}")]
+        public async Task<IActionResult> ChangeCourierLocationByOrderId(long orderId, [FromQuery]long courierLatitude, [FromQuery] long courierLongitude)
+        {
+            var coords = new
+            {
+                courierLatitude,
+                courierLongitude
+            };
+
+            await hubContext.Clients.Group($"ORDER_{orderId}").SendAsync("CourierLocationUpdated", coords);
+
+            return Ok(coords);
+        }
     }
 }
