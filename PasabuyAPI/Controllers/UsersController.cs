@@ -46,7 +46,7 @@ namespace PasabuyAPI.Controllers
             return Ok(user);
         }
 
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "VerifiedOnly")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserResponseDTO>> GetUserAsync(long id)
         {
@@ -58,11 +58,11 @@ namespace PasabuyAPI.Controllers
 
         [Authorize]
         [HttpPatch("change/name")]
-        public async Task<ActionResult<UserResponseDTO>> UpdateNameAsync( [FromBody] ChangeNameRequestDTO changeNameRequestDto)
+        public async Task<ActionResult<UserResponseDTO>> UpdateNameAsync([FromBody] ChangeNameRequestDTO changeNameRequestDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-                
+
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (userIdClaim == null)
@@ -196,16 +196,46 @@ namespace PasabuyAPI.Controllers
 
             return Ok(response);
         }
-        
+
         [HttpPost("admin")]
         public async Task<ActionResult<UserResponseDTO>> CreateAdminAsync([FromBody] CreateAdminRequestDTO createAdminRequestDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
+
             var response = await _userService.AddAdmin(createAdminRequestDTO);
 
             return Ok(response);
+        }
+
+        [Authorize(Policy = "CustomerOnly")]
+        [HttpGet("statistics/customer")]
+        public async Task<ActionResult<CustomerStatisticsResponseDTO>> GetCustomerStatisticsAsync()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+                return Unauthorized("Invalid token — user ID not found.");
+
+            if (!long.TryParse(userIdClaim, out var userId))
+                return BadRequest("Invalid user ID format.");
+
+            var statistics = await _userService.GetCustomerStatistics(userId);
+            return Ok(statistics);
+        }
+
+        [Authorize(Policy = "CourierOnly")]
+        [HttpGet("statistics/courier")]
+        public async Task<ActionResult<CourierStatisticsResponseDTO>> GetCourierStatisticsAsync()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+                return Unauthorized("Invalid token — user ID not found.");
+
+            if (!long.TryParse(userIdClaim, out var userId))
+                return BadRequest("Invalid user ID format.");
+
+            var statistics = await _userService.GetCourierStatistics(userId);
+            return Ok(statistics);
         }
     }
 }

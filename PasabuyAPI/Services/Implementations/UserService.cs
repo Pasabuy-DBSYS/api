@@ -10,7 +10,7 @@ using PasabuyAPI.Configurations.Jwt;
 
 namespace PasabuyAPI.Services.Implementations
 {
-    public class UserService(IUserRespository userRepository, IVerificationInfoRepository verificationInfoRepository, TokenProvider tokenProvider,  IAwsS3Service awsS3Service) : IUserService
+    public class UserService(IUserRespository userRepository, IVerificationInfoRepository verificationInfoRepository, TokenProvider tokenProvider, IAwsS3Service awsS3Service) : IUserService
     {
         public async Task<UserResponseDTO?> GetUserByIdAsync(long id)
         {
@@ -40,14 +40,14 @@ namespace PasabuyAPI.Services.Implementations
                 throw new InvalidOperationException("Username already exists.");
 
             var entity = user.Adapt<Users>();
-            
+
             if (user.Profile is not null)
             {
                 string pfpPath = $"profiles/{Guid.NewGuid()}";
 
                 entity.ProfilePictureKey = await awsS3Service.UploadFileAsync(user.Profile, pfpPath);
             }
-            
+
             var addedUser = await userRepository.AddUserAsync(entity);
 
             var paths = await awsS3Service.UploadIDs(user.FrontId, user.BackId, user.Insurance);
@@ -73,7 +73,7 @@ namespace PasabuyAPI.Services.Implementations
         public async Task<UserResponseDTO> UpdateNameAsync(long userId, ChangeNameRequestDTO changeNameRequestDto)
         {
             var updatedUser = await userRepository.UpdateNameAsync(userId, changeNameRequestDto.FirstName, changeNameRequestDto.MiddleName ?? string.Empty, changeNameRequestDto.LastName);
-            
+
             return updatedUser.Adapt<UserResponseDTO>();
         }
 
@@ -86,7 +86,7 @@ namespace PasabuyAPI.Services.Implementations
         public async Task<UserResponseDTO> UpdatePhoneNumber(long userId, string phoneNumber)
         {
             var updatedUser = await userRepository.UpdatePhoneNumber(userId, phoneNumber);
-            return updatedUser.Adapt<UserResponseDTO>();        
+            return updatedUser.Adapt<UserResponseDTO>();
         }
 
         public async Task<UserResponseDTO> UpdatePassword(long userId, string password, string confirmation)
@@ -101,7 +101,7 @@ namespace PasabuyAPI.Services.Implementations
             var updatedUser = await userRepository.UpdatePassword(userId, password);
             return updatedUser.Adapt<UserResponseDTO>();
         }
-        
+
         public async Task<UserResponseDTO> UpdateProfilePicture(long userId, IFormFile image)
         {
             if (image is null)
@@ -158,6 +158,16 @@ namespace PasabuyAPI.Services.Implementations
             List<Users> user = await userRepository.GetUsersByVerificationStatus(verificationInfoStatus);
 
             return user.Adapt<List<UserResponseDTO>>();
+        }
+
+        public async Task<CustomerStatisticsResponseDTO> GetCustomerStatistics(long userId)
+        {
+            return await userRepository.GetCustomerStatistics(userId);
+        }
+
+        public async Task<CourierStatisticsResponseDTO> GetCourierStatistics(long userId)
+        {
+            return await userRepository.GetCourierStatistics(userId);
         }
     }
 }

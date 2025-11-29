@@ -19,5 +19,7 @@ namespace PasabuyAPI.Services.Interfaces
         Task<List<UserResponseDTO>> GetUsersByVerificationStatus(VerificationInfoStatus verificationInfoStatus);
         Task<string> UpdateRole(long userId, Roles role);
         Task<string> VerifyUser(long userId);
+        Task<CustomerStatisticsResponseDTO> GetCustomerStatistics(long userId);
+        Task<CourierStatisticsResponseDTO> GetCourierStatistics(long userId);
     }
 }

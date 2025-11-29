@@ -1,3 +1,4 @@
+using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.Enums;
 using PasabuyAPI.Models;
 
@@ -25,5 +26,7 @@ namespace PasabuyAPI.Repositories.Interfaces
         Task<bool> ExistsByUsernameAsync(string username);
         Task<bool> ExistsByPhoneAsync(string phone);
         Task<bool> VerifyUser(long userId);
+        Task<CustomerStatisticsResponseDTO> GetCustomerStatistics(long userId);
+        Task<CourierStatisticsResponseDTO> GetCourierStatistics(long userId);
     }
 }

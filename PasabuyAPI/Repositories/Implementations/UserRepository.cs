@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PasabuyAPI.Configurations.Jwt;
 using PasabuyAPI.Data;
 using PasabuyAPI.DTOs.Requests;
+using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.Enums;
 using PasabuyAPI.Exceptions;
 using PasabuyAPI.Models;
@@ -59,7 +60,7 @@ namespace PasabuyAPI.Repositories.Implementations
             var exists = await ExistsByEmailAsync(email);
 
             if (exists) throw new AlreadyExistsException($"Email: {email} already exists");
-            
+
             try
             {
                 var mail = new MailAddress(email); // throws if invalid
@@ -179,6 +180,60 @@ namespace PasabuyAPI.Repositories.Implementations
             return await context.Users
                             .Include(u => u.VerificationInfo.VerificationInfoStatus == verificationInfoStatus)
                             .ToListAsync();
+        }
+
+        public async Task<CustomerStatisticsResponseDTO> GetCustomerStatistics(long userId)
+        {
+            var completedOrders = await context.Orders
+                .Where(o => o.CustomerId == userId &&
+                           o.Status == Status.DELIVERED ||
+                           o.Status == Status.WATING_FOR_REVIEW ||
+                           o.Status == Status.REVIEWED)
+                .Include(o => o.Payment)
+                .ToListAsync();
+
+            var totalOrders = completedOrders.Count;
+            var totalSpent = completedOrders
+                .Where(o => o.Payment != null)
+                .Sum(o => o.Payment!.TotalAmount);
+
+            var user = await context.Users
+                .FirstOrDefaultAsync(u => u.UserIdPK == userId);
+
+            return new CustomerStatisticsResponseDTO
+            {
+                UserId = userId,
+                TotalOrders = totalOrders,
+                TotalSpent = totalSpent ?? 0m,
+                TotalRating = user?.RatingAverage ?? 0m
+            };
+        }
+
+        public async Task<CourierStatisticsResponseDTO> GetCourierStatistics(long userId)
+        {
+            var completedDeliveries = await context.Orders
+                .Where(o => o.CourierId == userId &&
+                           (o.Status == Status.DELIVERED ||
+                            o.Status == Status.WATING_FOR_REVIEW ||
+                            o.Status == Status.REVIEWED))
+                .Include(o => o.Payment)
+                .ToListAsync();
+
+            var totalDeliveries = completedDeliveries.Count;
+            var totalEarnings = completedDeliveries
+                .Where(o => o.Payment != null)
+                .Sum(o => o.Payment!.DeliveryFee);
+
+            var user = await context.Users
+                .FirstOrDefaultAsync(u => u.UserIdPK == userId);
+
+            return new CourierStatisticsResponseDTO
+            {
+                UserId = userId,
+                TotalDeliveries = totalDeliveries,
+                TotalEarnings = totalEarnings,
+                Rating = user?.RatingAverage ?? 0m
+            };
         }
     }
 }
