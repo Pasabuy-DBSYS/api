@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Verification Status</title>
+    <style>
+      body {
+        font-family: Segoe UI, Helvetica, Arial, sans-serif;
+        background-color: #f9f9f9;
+        color: #333333;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 6px;
+        padding: 24px 32px;
+      }
+      h1 {
+        font-size: 18px;
+        margin-bottom: 16px;
+      }
+      p {
+        line-height: 1.6;
+        font-size: 14px;
+      }
+      .status-badge {
+        display: inline-block;
+        font-size: 16px;
+        font-weight: bold;
+        margin: 20px 0;
+        padding: 12px 24px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .status-ACCEPTED {
+        background: #d4edda;
+        color: #155724;
+        border: 2px solid #c3e6cb;
+      }
+      .status-REJECTED {
+        background: #f8d7da;
+        color: #721c24;
+        border: 2px solid #f5c6cb;
+      }
+      .status-PENDING {
+        background: #fff3cd;
+        color: #856404;
+        border: 2px solid #ffeaa7;
+      }
+      .details {
+        margin-top: 8px;
+        font-size: 13px;
+        color: #555555;
+      }
+      .footer {
+        margin-top: 24px;
+        font-size: 12px;
+        color: #666666;
+        line-height: 1.6;
+      }
+      a {
+        color: #0067b8;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <p>Hi {{user}},</p>
+      <p>We have an update regarding your verification request for {{appName}}.</p>
+      <p>Your verification status is:</p>
+
+      <!-- Use one of these based on status -->
+      <div class="status-badge status-{{status}}">{{status}}</div>
+      <!-- <div class="status-badge status-rejected">✗ Rejected</div> -->
+      <!-- <div class="status-badge status-pending">⏳ Pending</div> -->
+
+      <p class="details">Date: {{reviewDate}}</p>
+
+      <p>{{message}}</p>
+
+      <p>Thanks,<br />The {{appName}} Team</p>
+
+      <div class="footer">
+        <p>{{companyName}}, {{companyAddress}}</p>
+        <p>Need help? <a href="{{supportUrl}}">Contact Support</a></p>
+      </div>
+    </div>
+  </body>
+</html>

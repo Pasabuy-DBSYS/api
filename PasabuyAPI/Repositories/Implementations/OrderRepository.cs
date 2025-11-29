@@ -10,7 +10,7 @@ namespace PasabuyAPI.Repositories.Implementations
     public class OrderRepository(PasabuyDbContext context) : IOrderRepository
     {
         private readonly PasabuyDbContext _context = context;
-        private static readonly Status[] ActiveStatuses = [Status.PENDING, Status.ACCEPTED, Status.IN_TRANSIT];
+        private static readonly Status[] ActiveStatuses = [Status.PENDING, Status.ACCEPTED, Status.PICKED_UP, Status.IN_TRANSIT];
         private static readonly Status[] CompletedStatuses = [Status.DELIVERED, Status.WATING_FOR_REVIEW, Status.REVIEWED];
         public async Task<List<Orders>> GetOrdersAsync()
         {
@@ -106,47 +106,82 @@ namespace PasabuyAPI.Repositories.Implementations
 
         public async Task<Orders> UpdateStatusAsync(long orderId, Status status, long currentUserId)
         {
-            var order = await _context.Orders
-                            .Include(o => o.DeliveryDetails)
-                            .Include(o => o.Payment)
-                            .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
-                            ?? throw new Exception($"Order id {orderId} not found");
-
-            // Authorization check
-            if (order.CustomerId != currentUserId && order.CourierId != currentUserId)
-                throw new UnauthorizedAccessException("You are not authorized to update this order.");
-
-            order.Updated_at = DateTime.UtcNow;
-            order.Status = status;
-
-            if (CompletedStatuses.Contains(status) && order.DeliveryDetails != null)
+            // Begin Transaction
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                order.DeliveryDetails.ActualDeliveryTime = DateTime.UtcNow;
-                order.Payment.PaidAt = DateTime.UtcNow;
-                order.Payment.PaymentStatus = PaymentStatus.COMPLETED;
-                order.ChatRoom.ClosedAt = DateTime.UtcNow;
-                order.ChatRoom.IsActive = false;
-            }
+                var order = await _context.Orders
+                                .Include(o => o.DeliveryDetails)
+                                .Include(o => o.Payment)
+                                .Include(o => o.ChatRoom)
+                                .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
+                                ?? throw new Exception($"Order id {orderId} not found");
 
-            if(order.ChatRoom != null && status == Status.CANCELLED)
+                // Authorization check
+                if (order.CustomerId != currentUserId && order.CourierId != currentUserId)
+                    throw new UnauthorizedAccessException("You are not authorized to update this order.");
+
+                // Store the original status BEFORE updating the order
+                var originalStatus = order.Status; 
+
+                // CRITICAL CANCELLATION CHECK
+                if(status == Status.CANCELLED)
+                {
+                    // Only perform the time check if the order was previously active.
+                    if(ActiveStatuses.Contains(originalStatus))
+                    {
+                        // Check if the order is older than 5 minutes
+                        if(order.Created_at < DateTime.UtcNow.AddMinutes(-5))
+                        {
+                            throw new Exception("Cannot cancel order now: The 5-minute grace period for active orders has expired.");
+                        }
+                    }
+                    
+                    // Apply cancellation-specific updates
+                    if(order.ChatRoom != null)
+                    {
+                        order.ChatRoom.ClosedAt = DateTime.UtcNow;
+                        order.ChatRoom.IsActive = false;
+                    }
+                }
+
+                // Apply general status updates
+                order.Updated_at = DateTime.UtcNow;
+                order.Status = status;
+
+                if (CompletedStatuses.Contains(status) && order.DeliveryDetails != null)
+                {
+                    order.DeliveryDetails.ActualDeliveryTime = DateTime.UtcNow;
+                    order.Payment.PaidAt = DateTime.UtcNow;
+                    order.Payment.PaymentStatus = PaymentStatus.COMPLETED;
+                    order.ChatRoom.ClosedAt = DateTime.UtcNow;
+                    order.ChatRoom.IsActive = false;
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return order;
+            }
+            catch
             {
-                order.ChatRoom.ClosedAt = DateTime.UtcNow;
-                order.ChatRoom.IsActive = false;
+                await transaction.RollbackAsync();
+                throw;
             }
-
-            await _context.SaveChangesAsync();
-            return order;
         }
 
 
         public async Task<List<Orders>> GetAllOrdersByStatus(Status status)
         {
-            return await _context.Orders
-                            .Where(o => o.Status == status) // 👈 filter only pending
-                            .Include(o => o.Customer)               // optional: eager load related data
-                            .Include(o => o.DeliveryDetails)        // optional: if you need delivery info
-                            .Include(o => o.Payment)
-                            .ToListAsync();
+            IQueryable<Orders> query = _context.Orders
+                .Where(o => o.Status == status)
+                .Include(o => o.Customer)
+                .Include(o => o.DeliveryDetails)
+                .Include(o => o.Payment);
+
+            if (status == Status.PENDING)
+                query = query.OrderByDescending(o => o.Priority == Priority.URGENT);
+
+            return await query.ToListAsync();
         }
 
         public async Task<List<Orders>> GetAllOrdersByCustomerId(long customerId) // Get all past order

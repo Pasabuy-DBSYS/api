@@ -44,6 +44,7 @@ builder.Services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
 builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 builder.Services.AddScoped<IPhoneVerificationRepository, PhoneVerificationRepository>();
 builder.Services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 // Dependency Injections [Services]
 builder.Services.AddScoped<IUserService, UserService>();
@@ -57,6 +58,7 @@ builder.Services.AddScoped<IAwsS3Service, AwsS3Service>();
 builder.Services.AddScoped<IPhoneVerificationServices, PhoneVerificationServices>();
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 builder.Services.AddScoped<IEmailServices, EmailServices>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 
 // PasswordHasher DI
@@ -191,4 +193,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapHub<ChatHub>("api/hubs/chatsHub");  // Chat hub endpoint
 app.MapHub<OrdersHub>("api/hubs/ordersHub"); // Orders hub endpoint
+app.MapHub<NotificationHub>("api/hubs/notificationsHub"); // Orders hub endpoint
 app.Run();
