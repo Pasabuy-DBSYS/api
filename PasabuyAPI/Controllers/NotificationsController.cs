@@ -24,7 +24,7 @@ namespace PasabuyAPI.Controllers
         public async Task<ActionResult<NotificationResponseDTO>> GetNotificationById(long id)
         {
             var notification = await notificationService.GetNotificationByid(id);
-            
+
             if (notification == null)
                 return NotFound($"Notification with id {id} not found.");
 
