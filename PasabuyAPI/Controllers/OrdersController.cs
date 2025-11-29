@@ -16,7 +16,7 @@ namespace PasabuyAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OrdersController(IOrderService orderService, IHubContext<OrdersHub> hubContext) : ControllerBase
+    public class OrdersController(IOrderService orderService, IHubContext<OrdersHub> hubContext, IHubContext<NotificationHub> notificationHub, INotificationService notificationService) : ControllerBase
     {
         [Authorize(Policy = "AdminOnly")]
         [HttpGet]
@@ -30,7 +30,7 @@ namespace PasabuyAPI.Controllers
             if (!long.TryParse(userIdClaim, out var userId))
                 return BadRequest("Invalid user ID format.");
 
-            
+
 
             List<OrderResponseDTO> orders = await orderService.GetOrdersAsync();
             return Ok(orders);
@@ -132,6 +132,17 @@ namespace PasabuyAPI.Controllers
             await hubContext.Clients.Group("COURIER").SendAsync("OrderAccepted", responseDTO);
             await hubContext.Clients.Group($"ORDER_{orderId}").SendAsync("OrderAccepted", responseDTO);
 
+            NotificationRequestDTO notificationRequestDTO = new()
+            {
+                Title = "Order Accepted",
+                Message = "Your order has been accepted.",
+                Pressed = false,
+                UserIdFk = responseDTO.CustomerId
+            };
+
+            var notificationResponse = await notificationService.CreateNotification(notificationRequestDTO);
+            await notificationHub.Clients.Group($"user:{responseDTO.CustomerId}").SendAsync("ReceiveNotification", notificationResponse);
+
             return StatusCode(201, responseDTO);
         }
 
@@ -147,6 +158,45 @@ namespace PasabuyAPI.Controllers
             OrderResponseDTO responseDTO = await orderService.UpdateStatusAsync(orderId, status, currentUserId);
 
             await hubContext.Clients.Group($"ORDER_{orderId}").SendAsync("OrderStatusUpdated", responseDTO);
+
+            // Create notification with custom message based on status
+            var (title, message) = status switch
+            {
+                Status.ACCEPTED => ("Order Accepted", "Your order has been accepted by a courier"),
+                Status.PICKED_UP => ("Order Picked Up", "Your courier has picked up your order"),
+                Status.IN_TRANSIT => ("Order In Transit", "Your order is on the way"),
+                Status.DELIVERED => ("Order Delivered", "Your order has been delivered successfully"),
+                Status.WATING_FOR_REVIEW => ("Review Needed", "Please review your completed order"),
+                Status.REVIEWED => ("Order Reviewed", "Thank you for your review"),
+                Status.CANCELLED => ("Order Cancelled", "The order has been cancelled"),
+                _ => ("Order Status Updated", $"Your order status has been updated to {status}")
+            };
+
+            NotificationRequestDTO notificationRequestDTO = new()
+            {
+                Title = title,
+                Message = message,
+                Pressed = false,
+                UserIdFk = responseDTO.CustomerId
+            };
+
+            var notificationResponse = await notificationService.CreateNotification(notificationRequestDTO);
+            await notificationHub.Clients.Group($"user:{responseDTO.CustomerId}").SendAsync("ReceiveNotification", notificationResponse);
+
+            // If order is cancelled, notify the courier as well
+            if (status == Status.CANCELLED && responseDTO.CourierId != 0)
+            {
+                NotificationRequestDTO courierNotificationDTO = new()
+                {
+                    Title = "Order Cancelled",
+                    Message = $"Order #{orderId} has been cancelled",
+                    Pressed = false,
+                    UserIdFk = responseDTO.CourierId
+                };
+
+                var courierNotificationResponse = await notificationService.CreateNotification(courierNotificationDTO);
+                await notificationHub.Clients.Group($"user:{responseDTO.CourierId}").SendAsync("ReceiveNotification", courierNotificationResponse);
+            }
 
             return Ok(responseDTO);
         }
@@ -193,7 +243,7 @@ namespace PasabuyAPI.Controllers
 
         [Authorize(Policy = "VerifiedOnly")]
         [HttpPatch("update/courier-location/{orderId}")]
-        public async Task<IActionResult> ChangeCourierLocationByOrderId(long orderId, [FromQuery]long courierLatitude, [FromQuery] long courierLongitude)
+        public async Task<IActionResult> ChangeCourierLocationByOrderId(long orderId, [FromQuery] long courierLatitude, [FromQuery] long courierLongitude)
         {
             var coords = new
             {

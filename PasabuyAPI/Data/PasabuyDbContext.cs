@@ -16,6 +16,7 @@ namespace PasabuyAPI.Data
         public DbSet<ChatRooms> ChatRooms { get; set; }
         public DbSet<PhoneVerification> PhoneVerifications { get; set; }
         public DbSet<EmailVerification> EmailVerifications { get; set; }
+        public DbSet<Notifications> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -60,6 +61,12 @@ namespace PasabuyAPI.Data
             modelBuilder.Entity<Users>()
                 .Property(u => u.CurrentRole)
                 .HasConversion<string>();
+
+            modelBuilder.Entity<Users>()
+                .HasMany(u => u.Notifications)
+                .WithOne(n => n.User)
+                .HasForeignKey(n => n.UserIdFk)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<VerificationInfo>()
                 .Property(v => v.VerificationInfoStatus)

@@ -12,7 +12,7 @@ namespace PasabuyAPI.Controllers
     [Route("api/[controller]")]
     public class VerificationInfoController(IVerificationInfoService verificationInfoService) : ControllerBase
     {
-        [Authorize]
+        [Authorize(Policy = "AdminOnly")]
         [HttpPatch("{userId}")]
         public async Task<ActionResult<VerificationInfoResponseDTO>> UpdateVerificationInfoByUserIdAsync([FromBody] VerificationInfoStatus verificationInfoStatus, long userId)
         {

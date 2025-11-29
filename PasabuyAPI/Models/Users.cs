@@ -54,5 +54,6 @@ namespace PasabuyAPI.Models
         public required VerificationInfo VerificationInfo { get; set; }
         public List<Orders> CustomerOrders { get; set; } = [];
         public List<Orders> CourierOrders { get; set; } = [];
+        public List<Notifications> Notifications { get; set; } = [];
     }
 }
