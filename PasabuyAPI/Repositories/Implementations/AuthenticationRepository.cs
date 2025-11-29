@@ -18,7 +18,7 @@ namespace PasabuyAPI.Repositories.Implementations
             // Look for user by username or email
             var user = await context.Users
                 .Include(u => u.VerificationInfo)
-                .FirstOrDefaultAsync(u => u.Username == username || u.Email == username)
+                .FirstOrDefaultAsync(u => u.Username == username)
                 ?? throw new Exception("User not found");
 
             var passwordHasher = new PasswordHasher<Users>();
