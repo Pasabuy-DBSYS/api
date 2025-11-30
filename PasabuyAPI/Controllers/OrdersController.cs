@@ -135,7 +135,7 @@ namespace PasabuyAPI.Controllers
             NotificationRequestDTO notificationRequestDTO = new()
             {
                 Title = "Order Accepted",
-                Message = "Your order has been accepted.",
+                Message = $"Order #{orderId} has been accepted.",
                 Pressed = false,
                 UserIdFk = responseDTO.CustomerId
             };
@@ -162,14 +162,14 @@ namespace PasabuyAPI.Controllers
             // Create notification with custom message based on status
             var (title, message) = status switch
             {
-                Status.ACCEPTED => ("Order Accepted", "Your order has been accepted by a courier"),
-                Status.PICKED_UP => ("Order Picked Up", "Your courier has picked up your order"),
-                Status.IN_TRANSIT => ("Order In Transit", "Your order is on the way"),
-                Status.DELIVERED => ("Order Delivered", "Your order has been delivered successfully"),
-                Status.WATING_FOR_REVIEW => ("Review Needed", "Please review your completed order"),
-                Status.REVIEWED => ("Order Reviewed", "Thank you for your review"),
-                Status.CANCELLED => ("Order Cancelled", "The order has been cancelled"),
-                _ => ("Order Status Updated", $"Your order status has been updated to {status}")
+                Status.ACCEPTED => ("Order Accepted", $"Order #{orderId} has been accepted by a courier"),
+                Status.PICKED_UP => ("Order Picked Up", $"Your courier has picked up your order [Order #{orderId}]"),
+                Status.IN_TRANSIT => ("Order In Transit", $"Order #{orderId} is on the way"),
+                Status.DELIVERED => ("Order Delivered", $"Order #{orderId} has been delivered successfully"),
+                Status.WATING_FOR_REVIEW => ("Review Needed", $"Please review your completed order [Order #{orderId}]"),
+                Status.REVIEWED => ("Order Reviewed", $"Thank you for your review [Order #{orderId}]"),
+                Status.CANCELLED => ("Order Cancelled", $"Order #{orderId} has been cancelled"),
+                _ => ("Order Status Updated", $"Order #{orderId} status has been updated to {status}")
             };
 
             NotificationRequestDTO notificationRequestDTO = new()

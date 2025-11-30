@@ -216,7 +216,8 @@ namespace PasabuyAPI.Repositories.Implementations
                             .Include(o => o.Courier)
                             .Include(o => o.DeliveryDetails)
                             .Include(o => o.Payment)
-                            .FirstOrDefaultAsync(o => o.CustomerId == customerId) ?? throw new NotFoundException($"There is no active order for customer {customerId}");
+                            .FirstOrDefaultAsync(o => o.CustomerId == customerId && ActiveStatuses.Contains(o.Status))
+                            ?? throw new NotFoundException($"There is no active order for customer {customerId}");
 
         }
         
@@ -227,7 +228,7 @@ namespace PasabuyAPI.Repositories.Implementations
                             .Include(o => o.Courier)
                             .Include(o => o.DeliveryDetails)
                             .Include(o => o.Payment)
-                            .FirstOrDefaultAsync(o => o.CourierId == courierId) ?? throw new NotFoundException($"There is no active order for customer {courierId}");
+                            .FirstOrDefaultAsync(o => o.CourierId == courierId && ActiveStatuses.Contains(o.Status)) ?? throw new NotFoundException($"There is no active order for customer {courierId}");
                             
         }
 

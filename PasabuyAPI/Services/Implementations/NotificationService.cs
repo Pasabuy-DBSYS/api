@@ -33,5 +33,22 @@ namespace PasabuyAPI.Services.Implementations
             return response.Adapt<List<NotificationResponseDTO>>();
         }
 
+        public async Task<NotificationResponseDTO> DeleteNotificationById(long notificationId)
+        {
+            var response = await notificationRepository.DeleteNotificationById(notificationId);
+            return response.Adapt<NotificationResponseDTO>();
+        }
+
+        public async Task<NotificationResponseDTO> ReadNotificationById(long notificationId)
+        {
+            var response = await notificationRepository.ReadNotificationById(notificationId);
+            return response.Adapt<NotificationResponseDTO>();
+        }
+
+        public async Task<List<NotificationResponseDTO>> ReadAllNotificationByUserId(long userId)
+        {
+            var response = await notificationRepository.ReadAllNotificationByUserId(userId);
+            return response.Adapt<List<NotificationResponseDTO>>();
+        }
     }
 }
