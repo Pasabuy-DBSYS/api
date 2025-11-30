@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace PasabuyAPI.Models
 {
+    [Index(nameof(OrderIDFK), nameof(ReviewerIDFK), IsUnique = true)]
     public class Reviews
     {
         [Key]

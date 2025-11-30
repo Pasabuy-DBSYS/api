@@ -45,6 +45,7 @@ builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>(
 builder.Services.AddScoped<IPhoneVerificationRepository, PhoneVerificationRepository>();
 builder.Services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IReviewsRepository, ReviewsRepository>();
 
 // Dependency Injections [Services]
 builder.Services.AddScoped<IUserService, UserService>();
@@ -59,6 +60,7 @@ builder.Services.AddScoped<IPhoneVerificationServices, PhoneVerificationServices
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 builder.Services.AddScoped<IEmailServices, EmailServices>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IReviewsService, ReviewsService>();
 
 
 // PasswordHasher DI
