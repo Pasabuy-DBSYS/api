@@ -11,7 +11,7 @@ namespace PasabuyAPI.Controllers
     [Route("api/[controller]")]
     public class NotificationsController(INotificationService notificationService) : ControllerBase
     {
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<NotificationResponseDTO>>> GetAllNotifications()
         {
@@ -55,6 +55,37 @@ namespace PasabuyAPI.Controllers
 
             var notification = await notificationService.CreateNotification(notificationRequest);
             return StatusCode(201, notification);
+        }
+
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<NotificationResponseDTO>> DeleteNotification(long id)
+        {
+            var notification = await notificationService.DeleteNotificationById(id);
+            return Ok(notification);
+        }
+
+        [Authorize]
+        [HttpPatch("read/{id}")]
+        public async Task<ActionResult<NotificationResponseDTO>> MarkNotificationAsRead(long id)
+        {
+            var notification = await notificationService.ReadNotificationById(id);
+            return Ok(notification);
+        }
+
+        [Authorize]
+        [HttpPatch("read-all")]
+        public async Task<ActionResult<List<NotificationResponseDTO>>> MarkAllNotificationsAsRead()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+                return Unauthorized("Invalid token — user ID not found.");
+
+            if (!long.TryParse(userIdClaim, out var userId))
+                return BadRequest("Invalid user ID format.");
+
+            var notifications = await notificationService.ReadAllNotificationByUserId(userId);
+            return Ok(notifications);
         }
     }
 }

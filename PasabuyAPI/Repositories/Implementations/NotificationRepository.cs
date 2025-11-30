@@ -17,6 +17,17 @@ namespace PasabuyAPI.Repositories.Implementations
             
         }
 
+        public async Task<Notifications> DeleteNotificationById(long notificationId)
+        {
+            var notif = await _context.Notifications.FindAsync(notificationId)
+                ?? throw new NotFoundException($"Notification ID: {notificationId} not found");
+            
+            _context.Notifications.Remove(notif);
+            await _context.SaveChangesAsync();
+            
+            return notif;
+        }
+
         public async Task<Notifications> GetNotificationByid(long notificationId)
         {
             return await _context.Notifications.FindAsync(notificationId) ?? 
@@ -31,6 +42,33 @@ namespace PasabuyAPI.Repositories.Implementations
         public async Task<List<Notifications>> GetNotificayionsByUserId(long userId)
         {
             return await _context.Notifications.Where(n => n.UserIdFk == userId).ToListAsync();
+        }
+
+        public async Task<List<Notifications>> ReadAllNotificationByUserId(long userId)
+        {
+            var notifications = await _context.Notifications
+                .Where(n => n.UserIdFk == userId && !n.Pressed)
+                .ToListAsync();
+            
+            foreach (var notif in notifications)
+            {
+                notif.Pressed = true;
+            }
+            
+            await _context.SaveChangesAsync();
+            
+            return notifications;
+        }
+
+        public async Task<Notifications> ReadNotificationById(long notificationId)
+        {
+            var notif = await _context.Notifications.FindAsync(notificationId)
+                ?? throw new NotFoundException($"Notification ID: {notificationId} not found");
+            
+            notif.Pressed = true;
+            await _context.SaveChangesAsync();
+            
+            return notif;
         }
     }
 }

@@ -8,5 +8,8 @@ namespace PasabuyAPI.Repositories.Interfaces
         Task<List<Notifications>> GetNotifications();
         Task<Notifications> GetNotificationByid(long notificationId);
         Task<List<Notifications>> GetNotificayionsByUserId(long userId);
+        Task<Notifications> DeleteNotificationById(long notificationId);
+        Task<Notifications> ReadNotificationById(long notificationId);
+        Task<List<Notifications>> ReadAllNotificationByUserId(long userId);
     }
 }
