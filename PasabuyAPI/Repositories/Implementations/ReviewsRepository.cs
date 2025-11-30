@@ -33,10 +33,10 @@ namespace PasabuyAPI.Repositories.Implementations
             return await _context.Reviews.AnyAsync(r => r.ReviewIDPK == id);
         }
 
-        public async Task<bool> ExistsByOrderIdAsync(long orderId)
-        {
-            return await _context.Reviews.AnyAsync(r => r.OrderIDFK == orderId);
-        }
+        // public async Task<bool> ExistsByOrderIdAsync(long orderId, long)
+        // {
+        //     return await _context.Reviews.AnyAsync(r => r.OrderIDFK == orderId);
+        // }
 
         public async Task<bool> ExistsByReviewerIdAsync(long reviewerId)
         {

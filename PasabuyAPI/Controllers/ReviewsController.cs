@@ -8,6 +8,8 @@ using Mapster;
 using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.DTOs.Requests;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace PasabuyAPI.Controllers
 {
@@ -44,7 +46,15 @@ namespace PasabuyAPI.Controllers
             }
             try
             {
-                ReviewResponseDTO review = await _reviewsService.CreateReviewAsync(reviewData);
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (userIdClaim == null)
+                    return Forbid("Invalid token");
+
+                if (!long.TryParse(userIdClaim, out var userId))
+                    return Forbid("Invalid Id");
+
+                ReviewResponseDTO review = await _reviewsService.CreateReviewAsync(reviewData, userId);
                 Console.WriteLine($"Created ReviewIDPK: {review.ReviewIDPK}");
                 return CreatedAtAction(
                     actionName: nameof(GetReviewAsync),

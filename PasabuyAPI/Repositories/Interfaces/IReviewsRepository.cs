@@ -11,7 +11,7 @@ namespace PasabuyAPI.Repositories.Interfaces
         //helpers
 
         Task<bool> ExistsByIdAsync(long id);
-        Task<bool> ExistsByOrderIdAsync(long orderId);
+        // Task<bool> ExistsByOrderIdAsync(long orderId, long reviewerId);
         Task<bool> ExistsByReviewerIdAsync(long reviewerId);
 
     }
