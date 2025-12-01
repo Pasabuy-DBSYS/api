@@ -10,6 +10,7 @@ namespace PasabuyAPI.Services.Interfaces
         Task<PaymentsResponseDTO> GetPaymentByTransactionId(string transactionId);
         Task<PaymentsResponseDTO?> GetPaymentsByOrderIdAsync(long OrderId);
         Task<PaymentsResponseDTO?> AcceptProposedItemsFeeAsync(long orderId);
+        Task<PaymentsResponseDTO?> RejectProposedItemsFeeAsync(long orderId);
         Task<PaymentsResponseDTO?> ProposeItemsFeeAsync(ProposePaymentRequestDTO proposePaymentRequestDTO);
         Task<PaymentsResponseDTO> UpdatePaymentStatusAsync(long orderId, PaymentStatus paymentsStatus);
     }

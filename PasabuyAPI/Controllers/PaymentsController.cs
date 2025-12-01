@@ -62,11 +62,14 @@ namespace PasabuyAPI.Controllers
         }
 
         [Authorize(Policy = "CustomerOnly")]
-        [HttpPatch("popose/reject/{orderId}")]
-        public async Task<IActionResult> RejectProposedItemsFeeAsync(long orderId){
-            PaymentsResponseDTO responseDTO = await paymentsService.GetPaymentsByOrderIdAsync(orderId) ?? throw new NotFoundException($"Payment of Order ID {orderId} not found");
+        [HttpPatch("propose/reject/{orderId}")]
+        public async Task<ActionResult<PaymentsResponseDTO>> RejectProposedItemsFeeAsync(long orderId)
+        {
+            PaymentsResponseDTO? responseDTO = await paymentsService.RejectProposedItemsFeeAsync(orderId);
 
-            await orderHub.Clients.Group($"ORDER_{orderId}").SendAsync("ProposalRejected", responseDTO);
+            if (responseDTO is null) return NotFound($"Order Id {orderId} is not found");
+
+            await orderHub.Clients.Group($"ORDER_{orderId}").SendAsync("PaymentProposalRejected", responseDTO);
 
             return Ok(responseDTO);
         }
