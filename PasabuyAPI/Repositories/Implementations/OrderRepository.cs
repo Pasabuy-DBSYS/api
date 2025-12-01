@@ -127,6 +127,7 @@ namespace PasabuyAPI.Repositories.Implementations
                 // CRITICAL CANCELLATION CHECK
                 if(status == Status.CANCELLED)
                 {
+                    order.Payment.PaymentStatus = PaymentStatus.CANCELLED;
                     // Only perform the time check if the order was previously active.
                     if(ActiveStatuses.Contains(originalStatus))
                     {

@@ -1,13 +1,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.DTOs.Responses;
+using PasabuyAPI.Hubs;
 using PasabuyAPI.Services.Interfaces;
 
 namespace PasabuyAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PaymentsController(IPaymentsService paymentsService) : ControllerBase
+    public class PaymentsController(IPaymentsService paymentsService, IHubContext<OrdersHub> orderHub) : ControllerBase
     {
         [Authorize(Policy = "VerifiedOnly")]
         [HttpGet("{transactionId}")]
@@ -21,12 +24,14 @@ namespace PasabuyAPI.Controllers
         }
 
         [Authorize(Policy = "CourierOnly")]
-        [HttpPost("propose/{orderId}")]
-        public async Task<ActionResult<PaymentsResponseDTO>> ProposeItemsFeeAsync(long orderId, [FromBody] long itemsFee)
+        [HttpPost("propose")]
+        public async Task<ActionResult<PaymentsResponseDTO>> ProposeItemsFeeAsync([FromForm] ProposePaymentRequestDTO proposePaymentRequestDTO)
         {
-            PaymentsResponseDTO? response = await paymentsService.ProposeItemsFeeAsync(orderId, itemsFee);
+            PaymentsResponseDTO? response = await paymentsService.ProposeItemsFeeAsync(proposePaymentRequestDTO);
 
-            if (response is null) return NotFound($"Order Id {orderId} is not found");
+            if (response is null) return NotFound($"Order Id {proposePaymentRequestDTO.OrderIdFK} is not found");
+
+            await orderHub.Clients.Group($"ORDER_{proposePaymentRequestDTO.OrderIdFK}").SendAsync("PaymentProposal", response);
 
             return Ok(response);
         }
@@ -39,6 +44,8 @@ namespace PasabuyAPI.Controllers
             
             if (responseDTO is null) return NotFound($"Order Id {orderId} is not found");
 
+            await orderHub.Clients.Group($"ORDER_{orderId}").SendAsync("PaymentProposal", responseDTO);
+            
             return Ok(responseDTO);
         }
     }
