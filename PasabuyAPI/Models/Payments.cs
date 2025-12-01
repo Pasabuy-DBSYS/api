@@ -28,6 +28,7 @@ namespace PasabuyAPI.Models
         [Column(TypeName = "decimal(10,2)")]
         public decimal? ItemsFee { get; set; } = 0;
         public decimal? ProposedItemsFee { get; set; } = 0;
+        public string ImageKey { get; set; } = string.Empty;
 
         [Column(TypeName = "decimal(10,2)")]
         public decimal? TotalAmount { get; set; } = 0;

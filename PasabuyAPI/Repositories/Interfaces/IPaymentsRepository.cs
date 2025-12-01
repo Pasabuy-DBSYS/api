@@ -9,7 +9,7 @@ namespace PasabuyAPI.Repositories.Interfaces
         Task<Payments> GetPaymentsByTransactionIdAsync(string TransactionId);
         Task<Payments> GetPaymentsByOrderIdAsync(long OrderId);
         Task<Payments> AcceptProposedItemsFeeAsync(long orderId);
-        Task<Payments> ProposeItemsFeeAsync(long orderId, decimal proposedItemsFee);
+        Task<Payments> ProposeItemsFeeAsync(long orderId, decimal proposedItemsFee, string imagePath);
         Task<Payments> UpdatePaymentStatusAsync(long orderId, PaymentStatus paymentStatus);
     }
 }

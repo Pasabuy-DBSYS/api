@@ -17,7 +17,7 @@ namespace PasabuyAPI.DTOs.Responses
 
         public decimal? TotalAmount { get; set; }
         public bool IsItemsFeeConfirmed { get; set; }
-
+        public string ImageKey { get; set; } = string.Empty;
         public PaymentMethod PaymentMethod { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public DateTime PaidAt { get; set; }

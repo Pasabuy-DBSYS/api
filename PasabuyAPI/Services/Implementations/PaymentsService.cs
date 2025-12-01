@@ -8,7 +8,7 @@ using PasabuyAPI.Services.Interfaces;
 
 namespace PasabuyAPI.Services.Implementations
 {
-    public class PaymentsService(IPaymentsRepository paymentsRepository) : IPaymentsService
+    public class PaymentsService(IPaymentsRepository paymentsRepository, IAwsS3Service awsS3Service) : IPaymentsService
     {
 
         public async Task<PaymentsResponseDTO> GetPaymentByTransactionId(string transactionId)
@@ -18,9 +18,12 @@ namespace PasabuyAPI.Services.Implementations
             return payment.Adapt<PaymentsResponseDTO>();
         }
 
-        public async Task<PaymentsResponseDTO?> ProposeItemsFeeAsync(long orderId, decimal proposedItemsFee)
+        public async Task<PaymentsResponseDTO?> ProposeItemsFeeAsync(ProposePaymentRequestDTO proposePaymentRequestDTO)
         {
-            Payments? entity = await paymentsRepository.ProposeItemsFeeAsync(orderId, proposedItemsFee);
+            string key = $"payments/{Guid.NewGuid()}";
+            var path = await awsS3Service.UploadFileAsync(proposePaymentRequestDTO.Image, key);
+
+            Payments? entity = await paymentsRepository.ProposeItemsFeeAsync(proposePaymentRequestDTO.OrderIdFK, proposePaymentRequestDTO.ItemsFee, key);
 
             if (entity is null) return null;
 

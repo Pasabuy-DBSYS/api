@@ -40,7 +40,7 @@ namespace PasabuyAPI.Repositories.Implementations
                 .FirstOrDefaultAsync(p => p.TransactionId == transactionGuid) ?? throw new NotFoundException($"Transaction Id: {transactionGuid} not found");
         }
 
-        public async Task<Payments> ProposeItemsFeeAsync(long orderId, decimal proposedItemsFee)
+        public async Task<Payments> ProposeItemsFeeAsync(long orderId, decimal proposedItemsFee, string imagePath)
         {
             Payments? target = await _context.Payments.FirstOrDefaultAsync(p => p.OrderIdFK == orderId);
 
@@ -48,6 +48,7 @@ namespace PasabuyAPI.Repositories.Implementations
 
             target.ProposedItemsFee = proposedItemsFee;
             target.IsItemsFeeConfirmed = false;
+            target.ImageKey = imagePath;
             target.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
