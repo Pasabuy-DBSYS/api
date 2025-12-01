@@ -39,6 +39,15 @@ namespace PasabuyAPI.Services.Implementations
             return entity.Adapt<PaymentsResponseDTO>();
         }
 
+        public async Task<PaymentsResponseDTO?> RejectProposedItemsFeeAsync(long orderId)
+        {
+            Payments? entity = await paymentsRepository.RejectProposedItemsFeeAsync(orderId);
+
+            if (entity is null) return null;
+
+            return entity.Adapt<PaymentsResponseDTO>();
+        }
+
         public async Task<PaymentsResponseDTO> UpdatePaymentStatusAsync(long orderId, PaymentStatus paymentsStatus)
         {
             Payments entity = await paymentsRepository.UpdatePaymentStatusAsync(orderId, paymentsStatus);

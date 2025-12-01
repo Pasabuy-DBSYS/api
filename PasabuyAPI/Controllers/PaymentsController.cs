@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.DTOs.Responses;
+using PasabuyAPI.Exceptions;
 using PasabuyAPI.Hubs;
 using PasabuyAPI.Services.Interfaces;
 
@@ -56,6 +57,19 @@ namespace PasabuyAPI.Controllers
             if (responseDTO is null) return NotFound($"Order Id {orderId} is not found");
 
             await orderHub.Clients.Group($"ORDER_{orderId}").SendAsync("PaymentProposal", responseDTO);
+
+            return Ok(responseDTO);
+        }
+
+        [Authorize(Policy = "CustomerOnly")]
+        [HttpPatch("propose/reject/{orderId}")]
+        public async Task<ActionResult<PaymentsResponseDTO>> RejectProposedItemsFeeAsync(long orderId)
+        {
+            PaymentsResponseDTO? responseDTO = await paymentsService.RejectProposedItemsFeeAsync(orderId);
+
+            if (responseDTO is null) return NotFound($"Order Id {orderId} is not found");
+
+            await orderHub.Clients.Group($"ORDER_{orderId}").SendAsync("PaymentProposalRejected", responseDTO);
 
             return Ok(responseDTO);
         }

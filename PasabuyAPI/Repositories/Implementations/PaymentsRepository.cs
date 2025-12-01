@@ -23,6 +23,7 @@ namespace PasabuyAPI.Repositories.Implementations
             }
 
             payment.BaseFee = BASE_FEE;
+            payment.TotalAmount = payment.DeliveryFee + payment.ItemsFee + (payment.TipAmount ?? 0);
 
             await _context.AddAsync(payment);
             await _context.SaveChangesAsync();
@@ -64,6 +65,21 @@ namespace PasabuyAPI.Repositories.Implementations
             target.ItemsFee = target.ProposedItemsFee;
             target.IsItemsFeeConfirmed = true;
             target.TotalAmount = target.DeliveryFee + target.ItemsFee + (target.TipAmount ?? 0);
+            target.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return target;
+        }
+
+        public async Task<Payments> RejectProposedItemsFeeAsync(long orderId)
+        {
+            Payments? target = await _context.Payments.FirstOrDefaultAsync(p => p.OrderIdFK == orderId);
+
+            if (target is null || target.OrderIdFK != orderId) throw new NotFoundException($"Payment for Order Id: {orderId} not found");
+
+            target.IsItemsFeeConfirmed = false;
+            target.ProposedItemsFee = null;
+            target.ImageKey = string.Empty;
             target.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
