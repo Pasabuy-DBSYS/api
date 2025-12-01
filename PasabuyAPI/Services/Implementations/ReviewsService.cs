@@ -2,6 +2,7 @@ using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.DTOs.Responses;
+using PasabuyAPI.Enums;
 using PasabuyAPI.Exceptions;
 using PasabuyAPI.Models;
 using PasabuyAPI.Repositories.Interfaces;
@@ -17,9 +18,14 @@ namespace PasabuyAPI.Services.Implementations
         {
             var order = await orderService.GetOrderByOrderId(reviewDto.OrderIDFK)?? throw new NotFoundException("Order not found");
 
-            if(reviewerId != order.CustomerId || reviewerId != order.CourierId)
+            if(reviewerId != order.CustomerId && reviewerId != order.CourierId)
             {
                 throw new UnauthorizedAccessException("You can't review the order");
+            }
+
+            if(order.Status != Status.WATING_FOR_REVIEW)
+            {
+                throw new Exception($"Cannot review order with status {order.Status}");
             }
             
             Reviews reviewEntity = reviewDto.Adapt<Reviews>();
@@ -28,6 +34,8 @@ namespace PasabuyAPI.Services.Implementations
             reviewEntity.CreatedAt = DateTime.UtcNow;
 
             var createdReview = await _reviewsRepository.CreateReview(reviewEntity);
+
+            await orderService.UpdateStatusAsync(order.OrderIdPK, Status.REVIEWED, reviewerId);
 
             return createdReview.Adapt<ReviewResponseDTO>();
         }
