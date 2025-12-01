@@ -13,12 +13,23 @@ namespace PasabuyAPI.Controllers
     public class PaymentsController(IPaymentsService paymentsService, IHubContext<OrdersHub> orderHub) : ControllerBase
     {
         [Authorize(Policy = "VerifiedOnly")]
-        [HttpGet("{transactionId}")]
+        [HttpGet("transaction/{transactionId}")]
         public async Task<ActionResult<PaymentsResponseDTO>> GetPaymentsByTransactionId(string transactionId)
         {
             PaymentsResponseDTO responseDTO = await paymentsService.GetPaymentByTransactionId(transactionId);
 
             if (responseDTO is null) return NotFound($"Transcation Id {transactionId} not found");
+
+            return Ok(responseDTO);
+        }
+
+        [Authorize]
+        [HttpGet("order/{orderId}")]
+        public async Task<ActionResult<PaymentsResponseDTO>> GetPaymentsByOrderId(long orderId)
+        {
+            PaymentsResponseDTO? responseDTO = await paymentsService.GetPaymentsByOrderIdAsync(orderId);
+
+            if (responseDTO is null) return NotFound($"Payment for Order Id {orderId} not found");
 
             return Ok(responseDTO);
         }
@@ -36,16 +47,16 @@ namespace PasabuyAPI.Controllers
             return Ok(response);
         }
 
-        [Authorize(Policy ="CustomerOnly")]
+        [Authorize(Policy = "CustomerOnly")]
         [HttpPatch("propose/accept/{orderId}")]
         public async Task<ActionResult<PaymentsResponseDTO>> AcceptProposedItemsFeeAsync(long orderId)
         {
             PaymentsResponseDTO? responseDTO = await paymentsService.AcceptProposedItemsFeeAsync(orderId);
-            
+
             if (responseDTO is null) return NotFound($"Order Id {orderId} is not found");
 
             await orderHub.Clients.Group($"ORDER_{orderId}").SendAsync("PaymentProposal", responseDTO);
-            
+
             return Ok(responseDTO);
         }
     }
