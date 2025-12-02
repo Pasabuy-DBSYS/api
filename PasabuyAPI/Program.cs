@@ -62,6 +62,7 @@ builder.Services.AddScoped<IEmailServices, EmailServices>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IReviewsService, ReviewsService>();
 builder.Services.AddScoped<IChatRoomService, ChatRoomService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
 
 // PasswordHasher DI

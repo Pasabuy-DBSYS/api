@@ -156,6 +156,12 @@ namespace PasabuyAPI.Repositories.Implementations
                     order.Payment.PaymentStatus = PaymentStatus.COMPLETED;
                     order.ChatRoom.ClosedAt = DateTime.UtcNow;
                     order.ChatRoom.IsActive = false;
+
+                    var courier = await _context.Users.FirstOrDefaultAsync(u => u.UserIdPK == order.CourierId);
+                    courier.TotalDeliveries += 1;
+
+                    var customer = await _context.Users.FirstOrDefaultAsync(u => u.UserIdPK == order.CustomerId);
+                    customer.TotalOrders += 1;
                 }
 
                 await _context.SaveChangesAsync();
@@ -274,6 +280,16 @@ namespace PasabuyAPI.Repositories.Implementations
 
             await _context.SaveChangesAsync();
             return order;
+        }
+
+        public async Task<int> GetTotalDeliveries(long courierId)
+        {
+            return await _context.Orders.CountAsync(o => o.CourierId == courierId && o.Status == Status.DELIVERED);
+        }
+
+        public async Task<int> GetTotalOrders(long customerId)
+        {
+            return await _context.Orders.CountAsync(o => o.CustomerId == customerId && o.Status == Status.DELIVERED);
         }
     }
 }

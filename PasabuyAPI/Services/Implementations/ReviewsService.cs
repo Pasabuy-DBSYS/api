@@ -17,23 +17,23 @@ namespace PasabuyAPI.Services.Implementations
 
         public async Task<ReviewResponseDTO> CreateReviewAsync(CreateReviewRequestDTO reviewDto, long reviewerId)
         {
-            var order = await orderService.GetOrderByOrderId(reviewDto.OrderIDFK)?? throw new NotFoundException("Order not found");
+            var order = await orderService.GetOrderByOrderId(reviewDto.OrderIDFK) ?? throw new NotFoundException("Order not found");
 
-            if(reviewerId != order.CustomerId && reviewerId != order.CourierId)
+            if (reviewerId != order.CustomerId && reviewerId != order.CourierId)
             {
                 throw new UnauthorizedAccessException("You can't review the order");
             }
 
-            if(order.Status != Status.DELIVERED)
+            if (order.Status != Status.DELIVERED)
             {
                 throw new Exception($"Cannot review order with status {order.Status}");
             }
 
-            if(order.CourierId == reviewerId)
+            if (order.CourierId == reviewerId)
                 order.IsCourierReviewed = true;
-            if(order.CustomerId == reviewerId)
+            if (order.CustomerId == reviewerId)
                 order.IsCustomerReviewed = true;
-            
+
             Reviews reviewEntity = reviewDto.Adapt<Reviews>();
 
             reviewEntity.ReviewerIDFK = reviewerId;
@@ -52,11 +52,16 @@ namespace PasabuyAPI.Services.Implementations
 
         public async Task<ReviewResponseDTO?> GetReviewByIdAsync(long id)
         {
-            var review = await Task.Run(() => _reviewsRepository.GetReviewsById(id)); 
+            var review = await Task.Run(() => _reviewsRepository.GetReviewsById(id));
             if (review == null)
                 return null;
 
             return review.Adapt<ReviewResponseDTO>();
+        }
+
+        public async Task<decimal> GetAverageRatingByReviewedIdAsync(long reviewedId)
+        {
+            return await _reviewsRepository.GetAverageRatingByReviewedIdAsync(reviewedId);
         }
     }
 }

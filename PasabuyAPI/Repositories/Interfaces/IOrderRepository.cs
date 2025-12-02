@@ -22,5 +22,7 @@ namespace PasabuyAPI.Repositories.Interfaces
 
         //Helper Method
         Task<bool> IsUserAvailable(long userId);
+        Task<int> GetTotalDeliveries(long courierId);
+        Task<int> GetTotalOrders(long customerId);
     }
 }
