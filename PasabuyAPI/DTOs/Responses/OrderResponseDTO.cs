@@ -11,6 +11,8 @@ namespace PasabuyAPI.DTOs.Responses
         public string Request { get; set; } = string.Empty;
         
         public Status Status { get; set; }
+        public bool IsCourierReviewed {get;set;}
+        public bool IsCustomerReviewed {get;set;}
         public Priority Priority { get; set; }
         public DateTime Created_at { get; set; }
         public DateTime Updated_at { get; set; }

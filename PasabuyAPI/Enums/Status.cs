@@ -7,8 +7,6 @@ namespace PasabuyAPI.Enums
         PICKED_UP,
         IN_TRANSIT,
         DELIVERED,
-        WATING_FOR_REVIEW,
-        REVIEWED,
         CANCELLED
     }
 }

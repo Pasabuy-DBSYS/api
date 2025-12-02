@@ -10,14 +10,17 @@ using PasabuyAPI.DTOs.Requests;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
+using PasabuyAPI.Hubs;
 
 namespace PasabuyAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ReviewsController(IReviewsService reviewsService) : ControllerBase
+    public class ReviewsController(IReviewsService reviewsService, IOrderService orderService, INotificationService notificationService, IHubContext<NotificationHub> notificationsHub) : ControllerBase
     {
         private readonly IReviewsService _reviewsService = reviewsService;
+        private readonly IOrderService _orderService = orderService;
 
         [Authorize(Policy = "AdminOnly")]
         [HttpGet]
@@ -56,6 +59,67 @@ namespace PasabuyAPI.Controllers
 
                 ReviewResponseDTO review = await _reviewsService.CreateReviewAsync(reviewData, userId);
                 Console.WriteLine($"Created ReviewIDPK: {review.ReviewIDPK}");
+
+                // Update order review flags based on who reviewed
+                var order = await _orderService.GetOrderByOrderId(reviewData.OrderIDFK);
+                if (order != null)
+                {
+                    // Customer review branch
+                    if (order.CustomerId == userId && !order.IsCustomerReviewed)
+                    {
+                        await _orderService.UpdateCustomerReviewedStatus(userId, true, reviewData.OrderIDFK);
+
+                        var customerThankYouDto = new NotificationRequestDTO
+                        {
+                            Title = "Order Reviewed",
+                            Message = $"Thank you for your review [Order #{order.OrderIdPK}]",
+                            Pressed = false,
+                            UserIdFk = userId
+                        };
+                        var customerThankYouResp = await notificationService.CreateNotification(customerThankYouDto);
+                        await notificationsHub.Clients.Group($"user:{userId}").SendAsync("ReceiveNotification", customerThankYouResp);
+
+                        if (order.CourierId != 0)
+                        {
+                            var courierInformedDto = new NotificationRequestDTO
+                            {
+                                Title = "Order Reviewed",
+                                Message = $"[Order #{order.OrderIdPK}] has been reviewed by the customer",
+                                Pressed = false,
+                                UserIdFk = order.CourierId
+                            };
+                            var courierInformedResp = await notificationService.CreateNotification(courierInformedDto);
+                            await notificationsHub.Clients.Group($"user:{order.CourierId}").SendAsync("ReceiveNotification", courierInformedResp);
+                        }
+                    }
+                    // Courier review branch
+                    else if (order.CourierId != 0 && order.CourierId == userId && !order.IsCourierReviewed)
+                    {
+                        await _orderService.UpdateCourierReviewedStatus(userId, true, reviewData.OrderIDFK);
+
+                        var courierThankYouDto = new NotificationRequestDTO
+                        {
+                            Title = "Order Reviewed",
+                            Message = $"Thank you for your review [Order #{order.OrderIdPK}]",
+                            Pressed = false,
+                            UserIdFk = userId
+                        };
+                        var courierThankYouResp = await notificationService.CreateNotification(courierThankYouDto);
+                        await notificationsHub.Clients.Group($"user:{userId}").SendAsync("ReceiveNotification", courierThankYouResp);
+
+                        // Inform customer that courier reviewed
+                        var customerInformedDto = new NotificationRequestDTO
+                        {
+                            Title = "Order Reviewed",
+                            Message = $"[Order #{order.OrderIdPK}] has been reviewed by the courier",
+                            Pressed = false,
+                            UserIdFk = order.CustomerId
+                        };
+                        var customerInformedResp = await notificationService.CreateNotification(customerInformedDto);
+                        await notificationsHub.Clients.Group($"user:{order.CustomerId}").SendAsync("ReceiveNotification", customerInformedResp);
+                    }
+                }
+
                 return CreatedAtAction(
                     actionName: nameof(GetReviewAsync),
                     routeValues: new { id = review.ReviewIDPK },
@@ -63,7 +127,7 @@ namespace PasabuyAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { error = ex.Message});
             }
         }
         

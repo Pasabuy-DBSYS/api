@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PasabuyAPI.Data;
@@ -11,9 +12,11 @@ using PasabuyAPI.Data;
 namespace PasabuyAPI.Migrations
 {
     [DbContext(typeof(PasabuyDbContext))]
-    partial class PasabuyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251202040723_AddedBool")]
+    partial class AddedBool
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,10 +245,10 @@ namespace PasabuyAPI.Migrations
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
 
-                    b.Property<bool>("IsCourierReviewed")
+                    b.Property<bool>("IsCourierReviewd")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsCustomerReviewed")
+                    b.Property<bool>("IsCustomerReviewd")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Priority")

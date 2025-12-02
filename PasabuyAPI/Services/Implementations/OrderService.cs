@@ -110,4 +110,16 @@ public class OrderService(IOrderRepository orderRepository, IDeliveryDetailsRepo
 
         return activeOrder.Adapt<OrderResponseDTO>();
     }
+
+    public async Task<OrderResponseDTO> UpdateCustomerReviewedStatus(long customerId, bool status, long orderId)
+    {
+        Orders updated = await orderRepository.UpdateCustomerReviewedStatus(customerId, status, orderId);
+        return updated.Adapt<OrderResponseDTO>();
+    }
+
+    public async Task<OrderResponseDTO> UpdateCourierReviewedStatus(long courierId, bool status, long orderId)
+    {
+        Orders updated = await orderRepository.UpdateCourierReviewedStatus(courierId, status, orderId);
+        return updated.Adapt<OrderResponseDTO>();
+    }
 }

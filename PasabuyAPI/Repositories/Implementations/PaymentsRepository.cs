@@ -23,7 +23,7 @@ namespace PasabuyAPI.Repositories.Implementations
             }
 
             payment.BaseFee = BASE_FEE;
-            payment.TotalAmount = payment.DeliveryFee + (payment.TipAmount ?? 0);
+            payment.DeliveryFee += payment.TipAmount ?? 0;
 
             await _context.AddAsync(payment);
             await _context.SaveChangesAsync();
@@ -64,7 +64,7 @@ namespace PasabuyAPI.Repositories.Implementations
 
             target.ItemsFee = target.ProposedItemsFee;
             target.IsItemsFeeConfirmed = true;
-            target.TotalAmount = target.DeliveryFee + target.ItemsFee + (target.TipAmount ?? 0);
+            target.TotalAmount = target.DeliveryFee + target.ItemsFee;
             target.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

@@ -166,8 +166,6 @@ namespace PasabuyAPI.Controllers
                 Status.PICKED_UP => ("Order Picked Up", $"Your courier has picked up your order [Order #{orderId}]"),
                 Status.IN_TRANSIT => ("Order In Transit", $"Order #{orderId} is on the way"),
                 Status.DELIVERED => ("Order Delivered", $"Order #{orderId} has been delivered successfully"),
-                Status.WATING_FOR_REVIEW => ("Review Needed", $"Please review your completed order [Order #{orderId}]"),
-                Status.REVIEWED => ("Order Reviewed", $"Thank you for your review [Order #{orderId}]"),
                 Status.CANCELLED => ("Order Cancelled", $"Order #{orderId} has been cancelled"),
                 _ => ("Order Status Updated", $"Order #{orderId} status has been updated to {status}")
             };
