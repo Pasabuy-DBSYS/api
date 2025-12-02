@@ -23,7 +23,7 @@ namespace PasabuyAPI.Repositories.Implementations
             }
 
             payment.BaseFee = BASE_FEE;
-            payment.TotalAmount = payment.DeliveryFee + (payment.TipAmount ?? 0);
+            payment.DeliveryFee += payment.TipAmount ?? 0;
 
             await _context.AddAsync(payment);
             await _context.SaveChangesAsync();
