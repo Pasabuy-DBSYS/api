@@ -20,6 +20,9 @@ namespace PasabuyAPI.Models
         [EnumDataType(typeof(Status))]
         public Status Status { get; set; }
         [EnumDataType(typeof(Priority))]
+
+        public bool IsCustomerReviewed {get;set;} = false;
+        public bool IsCourierReviewed {get;set;} = false;
         public Priority Priority { get; set; }
         public DateTime Created_at { get; set; } = DateTime.UtcNow;
         public DateTime Updated_at { get; set; } = DateTime.UtcNow;

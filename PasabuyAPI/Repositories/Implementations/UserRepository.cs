@@ -186,9 +186,7 @@ namespace PasabuyAPI.Repositories.Implementations
         {
             var completedOrders = await context.Orders
                 .Where(o => o.CustomerId == userId &&
-                           o.Status == Status.DELIVERED ||
-                           o.Status == Status.WATING_FOR_REVIEW ||
-                           o.Status == Status.REVIEWED)
+                           o.Status == Status.DELIVERED)
                 .Include(o => o.Payment)
                 .ToListAsync();
 
@@ -213,9 +211,7 @@ namespace PasabuyAPI.Repositories.Implementations
         {
             var completedDeliveries = await context.Orders
                 .Where(o => o.CourierId == userId &&
-                           (o.Status == Status.DELIVERED ||
-                            o.Status == Status.WATING_FOR_REVIEW ||
-                            o.Status == Status.REVIEWED))
+                           o.Status == Status.DELIVERED)
                 .Include(o => o.Payment)
                 .ToListAsync();
 

@@ -1,5 +1,6 @@
 using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.Enums;
@@ -23,10 +24,15 @@ namespace PasabuyAPI.Services.Implementations
                 throw new UnauthorizedAccessException("You can't review the order");
             }
 
-            if(order.Status != Status.WATING_FOR_REVIEW)
+            if(order.Status != Status.DELIVERED)
             {
                 throw new Exception($"Cannot review order with status {order.Status}");
             }
+
+            if(order.CourierId == reviewerId)
+                order.IsCourierReviewed = true;
+            if(order.CustomerId == reviewerId)
+                order.IsCustomerReviewed = true;
             
             Reviews reviewEntity = reviewDto.Adapt<Reviews>();
 
@@ -34,8 +40,6 @@ namespace PasabuyAPI.Services.Implementations
             reviewEntity.CreatedAt = DateTime.UtcNow;
 
             var createdReview = await _reviewsRepository.CreateReview(reviewEntity);
-
-            await orderService.UpdateStatusAsync(order.OrderIdPK, Status.REVIEWED, reviewerId);
 
             return createdReview.Adapt<ReviewResponseDTO>();
         }

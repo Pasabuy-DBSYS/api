@@ -11,7 +11,6 @@ namespace PasabuyAPI.Repositories.Implementations
     {
         private readonly PasabuyDbContext _context = context;
         private static readonly Status[] ActiveStatuses = [Status.PENDING, Status.ACCEPTED, Status.PICKED_UP, Status.IN_TRANSIT];
-        private static readonly Status[] CompletedStatuses = [Status.DELIVERED, Status.WATING_FOR_REVIEW, Status.REVIEWED];
         public async Task<List<Orders>> GetOrdersAsync()
         {
             return await _context.Orders
@@ -150,7 +149,7 @@ namespace PasabuyAPI.Repositories.Implementations
                 order.Updated_at = DateTime.UtcNow;
                 order.Status = status;
 
-                if (CompletedStatuses.Contains(status) && order.DeliveryDetails != null)
+                if (status == Status.DELIVERED && order.DeliveryDetails != null)
                 {
                     order.DeliveryDetails.ActualDeliveryTime = DateTime.UtcNow;
                     order.Payment.PaidAt = DateTime.UtcNow;
@@ -241,6 +240,40 @@ namespace PasabuyAPI.Repositories.Implementations
                 (o.CourierId == userId || o.CustomerId == userId));
 
             return !hasActiveOrder;
+        }
+
+        public async Task<Orders> UpdateCustomerReviewedStatus(long customerId, bool status, long orderId)
+        {
+            var order = await _context.Orders
+                                .Include(o => o.Customer)
+                                .Include(o => o.Courier)
+                                .Include(o => o.DeliveryDetails)
+                                .Include(o => o.Payment)
+                                .FirstOrDefaultAsync(o => o.OrderIdPK == orderId && o.CustomerId == customerId)
+                                    ?? throw new NotFoundException($"Combination of Order ID {orderId} and Customer ID {customerId} does not exist");
+
+            order.IsCustomerReviewed = status;
+            order.Updated_at = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return order;
+        }
+
+        public async Task<Orders> UpdateCourierReviewedStatus(long courierId, bool status, long orderId)
+        {
+            var order = await _context.Orders
+                                .Include(o => o.Customer)
+                                .Include(o => o.Courier)
+                                .Include(o => o.DeliveryDetails)
+                                .Include(o => o.Payment)
+                                .FirstOrDefaultAsync(o => o.OrderIdPK == orderId && o.CourierId == courierId)
+                                    ?? throw new NotFoundException($"Combination of Order ID {orderId} and Courier ID {courierId} does not exist");
+
+            order.IsCustomerReviewed = status;
+            order.Updated_at = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return order;
         }
     }
 }
