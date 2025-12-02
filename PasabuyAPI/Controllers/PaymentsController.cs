@@ -56,7 +56,7 @@ namespace PasabuyAPI.Controllers
 
             if (responseDTO is null) return NotFound($"Order Id {orderId} is not found");
 
-            await orderHub.Clients.Group($"ORDER_{orderId}").SendAsync("PaymentProposal", responseDTO);
+            await orderHub.Clients.Group($"ORDER_{orderId}").SendAsync("PaymentProposalAccepted", responseDTO);
 
             return Ok(responseDTO);
         }

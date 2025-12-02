@@ -19,11 +19,11 @@ namespace PasabuyAPI.Repositories.Implementations
             if (Urgency == Priority.URGENT)
             {
                 payment.DeliveryFee += URGENCY_FEE;
-                payment.UrgencyFee = 5.0m;
+                payment.UrgencyFee = URGENCY_FEE;
             }
 
             payment.BaseFee = BASE_FEE;
-            payment.TotalAmount = payment.DeliveryFee + payment.ItemsFee + (payment.TipAmount ?? 0);
+            payment.TotalAmount = payment.DeliveryFee + (payment.TipAmount ?? 0);
 
             await _context.AddAsync(payment);
             await _context.SaveChangesAsync();
@@ -108,9 +108,9 @@ namespace PasabuyAPI.Repositories.Implementations
 
         public async Task<Payments> GetPaymentsByOrderIdAsync(long OrderId)
         {
-            Payments? target = await _context.Payments.FirstOrDefaultAsync(p => p.OrderIdFK == OrderId) 
+            Payments? target = await _context.Payments.FirstOrDefaultAsync(p => p.OrderIdFK == OrderId)
                                     ?? throw new NotFoundException($"Payment for order id: {OrderId} not found");
             return target;
         }
-    }    
+    }
 }

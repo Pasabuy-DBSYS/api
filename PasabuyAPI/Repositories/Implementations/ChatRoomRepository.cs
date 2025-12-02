@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using PasabuyAPI.Data;
+using PasabuyAPI.Exceptions;
+using PasabuyAPI.Models;
 using PasabuyAPI.Repositories.Interfaces;
 
 namespace PasabuyAPI.Repositories.Implementations
@@ -24,6 +26,12 @@ namespace PasabuyAPI.Repositories.Implementations
 
             await context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<ChatRooms> GetChatRoomByOrderId(long orderId)
+        {
+            var chatRoom = await context.ChatRooms.FirstOrDefaultAsync(r => r.OrderIdFK == orderId) ?? throw new NotFoundException($"Chat room with order id {orderId} not found");
+            return chatRoom;
         }
     }
 }
