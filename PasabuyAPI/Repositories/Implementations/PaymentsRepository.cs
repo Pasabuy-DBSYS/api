@@ -112,5 +112,17 @@ namespace PasabuyAPI.Repositories.Implementations
                                     ?? throw new NotFoundException($"Payment for order id: {OrderId} not found");
             return target;
         }
+
+        public async Task<decimal> GetCustomerTotalSpending(long customerId)
+        {
+            var payments = await _context.Payments.Where(p => p.Order.CustomerId == customerId).SumAsync(p => p.TotalAmount);
+            return payments ?? 0;
+        }
+
+        public async Task<decimal> GetCourierTotalEarnings(long courierId)
+        {
+            var payments = await _context.Payments.Where(p => p.Order.CourierId == courierId).SumAsync(p => p.DeliveryFee);
+            return payments;
+        }
     }
 }

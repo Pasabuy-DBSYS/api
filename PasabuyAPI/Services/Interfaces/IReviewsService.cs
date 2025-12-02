@@ -9,5 +9,6 @@ namespace PasabuyAPI.Services.Interfaces
         Task<ReviewResponseDTO> CreateReviewAsync(CreateReviewRequestDTO reviewDto, long reviewerId);
         Task<List<ReviewResponseDTO>> GetAllReviewsAsync();
         Task<ReviewResponseDTO?> GetReviewByIdAsync(long id);
+        Task<decimal> GetAverageRatingByReviewedIdAsync(long reviewedId);
     }
 }

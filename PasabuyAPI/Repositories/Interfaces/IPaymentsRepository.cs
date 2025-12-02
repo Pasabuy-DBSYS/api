@@ -12,5 +12,7 @@ namespace PasabuyAPI.Repositories.Interfaces
         Task<Payments> RejectProposedItemsFeeAsync(long orderId);
         Task<Payments> ProposeItemsFeeAsync(long orderId, decimal proposedItemsFee, string imagePath);
         Task<Payments> UpdatePaymentStatusAsync(long orderId, PaymentStatus paymentStatus);
+        Task<decimal> GetCustomerTotalSpending(long customerId);
+        Task<decimal> GetCourierTotalEarnings(long courierId);
     }
 }

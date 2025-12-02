@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PasabuyAPI.Data;
+using PasabuyAPI.Exceptions;
 using PasabuyAPI.Models;
 using PasabuyAPI.Repositories.Interfaces;
 
@@ -12,6 +13,9 @@ namespace PasabuyAPI.Repositories.Implementations
         public async Task<Reviews> CreateReview(Reviews review)
         {
             _context.Reviews.Add(review);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserIdPK == review.ReviewedUserID) ?? throw new NotFoundException($"User not found {review.ReviewedUserID}");
+            var rating = await GetAverageRatingByReviewedIdAsync(user.UserIdPK);
+            user.RatingAverage = rating;
             await _context.SaveChangesAsync();
             return review;
         }
@@ -27,20 +31,16 @@ namespace PasabuyAPI.Repositories.Implementations
             return _context.Reviews.FirstOrDefault(r => r.ReviewIDPK == id);
         }
 
-        // Helpers
-        public async Task<bool> ExistsByIdAsync(long id)
+        public async Task<decimal> GetAverageRatingByReviewedIdAsync(long reviewedId)
         {
-            return await _context.Reviews.AnyAsync(r => r.ReviewIDPK == id);
-        }
+            var reviews = await _context.Reviews
+                .Where(r => r.ReviewedUserID == reviewedId)
+                .ToListAsync();
+            
+            if (reviews.Count == 0)
+                return 0;
 
-        // public async Task<bool> ExistsByOrderIdAsync(long orderId, long)
-        // {
-        //     return await _context.Reviews.AnyAsync(r => r.OrderIDFK == orderId);
-        // }
-
-        public async Task<bool> ExistsByReviewerIdAsync(long reviewerId)
-        {
-            return await _context.Reviews.AnyAsync(r => r.ReviewedUserID == reviewerId);
+            return (decimal)reviews.Average(r => r.Rating);
         }
     }
 }

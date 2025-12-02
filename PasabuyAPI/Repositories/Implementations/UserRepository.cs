@@ -214,7 +214,7 @@ namespace PasabuyAPI.Repositories.Implementations
                            o.Status == Status.DELIVERED)
                 .Include(o => o.Payment)
                 .ToListAsync();
-
+    
             var totalDeliveries = completedDeliveries.Count;
             var totalEarnings = completedDeliveries
                 .Where(o => o.Payment != null)
