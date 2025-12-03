@@ -237,5 +237,35 @@ namespace PasabuyAPI.Controllers
             var statistics = await _userService.GetCourierStatistics(userId);
             return Ok(statistics);
         }
+
+        [HttpGet("check/email/{email}")]
+        public async Task<ActionResult<bool>> CheckEmailExistsAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return BadRequest("Email cannot be empty.");
+
+            bool exists = await _userService.ExistsByEmailAsync(email);
+            return Ok(new { exists });
+        }
+
+        [HttpGet("check/username/{username}")]
+        public async Task<ActionResult<bool>> CheckUsernameExistsAsync(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+                return BadRequest("Username cannot be empty.");
+
+            bool exists = await _userService.ExistsByUsernameAsync(username);
+            return Ok(new { exists });
+        }
+
+        [HttpGet("check/phone/{phone}")]
+        public async Task<ActionResult<bool>> CheckPhoneExistsAsync(string phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone))
+                return BadRequest("Phone number cannot be empty.");
+
+            bool exists = await _userService.ExistsByPhoneNumberUsernameAsync(phone);
+            return Ok(new { exists });
+        }
     }
 }
