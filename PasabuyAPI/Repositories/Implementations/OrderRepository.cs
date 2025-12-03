@@ -162,6 +162,8 @@ namespace PasabuyAPI.Repositories.Implementations
 
                     var customer = await _context.Users.FirstOrDefaultAsync(u => u.UserIdPK == order.CustomerId);
                     customer.TotalOrders += 1;
+
+                    order.Payment.TotalAmount = order.Payment.DeliveryFee + order.Payment.ItemsFee;
                 }
 
                 await _context.SaveChangesAsync();
