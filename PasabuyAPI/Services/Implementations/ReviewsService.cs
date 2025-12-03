@@ -29,9 +29,9 @@ namespace PasabuyAPI.Services.Implementations
                 throw new Exception($"Cannot review order with status {order.Status}");
             }
 
-            if (order.CourierId == reviewerId)
+            if (reviewDto.IsCourier)
                 order.IsCourierReviewed = true;
-            if (order.CustomerId == reviewerId)
+            else
                 order.IsCustomerReviewed = true;
 
             Reviews reviewEntity = reviewDto.Adapt<Reviews>();

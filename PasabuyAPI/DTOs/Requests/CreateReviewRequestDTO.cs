@@ -15,5 +15,6 @@ namespace PasabuyAPI.DTOs.Requests
         
         [MaxLength(500, ErrorMessage = "Comment cannot exceed 500 characters")]
         public string? Comment { get; set; }
+        public bool IsCourier = false;
     }
 }
