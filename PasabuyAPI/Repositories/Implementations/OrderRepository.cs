@@ -56,7 +56,7 @@ namespace PasabuyAPI.Repositories.Implementations
 
             if (trackedOrder.Status != Status.PENDING)
                 throw new CannotAcceptOrderException($"Order Id {orderId} is not {Status.PENDING}");
-                
+
             if (trackedOrder.CustomerId == courierId)
                 throw new CannotAcceptOrderException($"Cannot accept own order");
 
@@ -121,24 +121,24 @@ namespace PasabuyAPI.Repositories.Implementations
                     throw new UnauthorizedAccessException("You are not authorized to update this order.");
 
                 // Store the original status BEFORE updating the order
-                var originalStatus = order.Status; 
+                var originalStatus = order.Status;
 
                 // CRITICAL CANCELLATION CHECK
-                if(status == Status.CANCELLED)
+                if (status == Status.CANCELLED)
                 {
                     order.Payment.PaymentStatus = PaymentStatus.CANCELLED;
                     // Only perform the time check if the order was previously active.
-                    if(ActiveStatuses.Contains(originalStatus))
+                    if (ActiveStatuses.Contains(originalStatus))
                     {
                         // Check if the order is older than 5 minutes
-                        if(order.Created_at < DateTime.UtcNow.AddMinutes(-5))
+                        if (order.Created_at < DateTime.UtcNow.AddMinutes(-5))
                         {
                             throw new Exception("Cannot cancel order now: The 5-minute grace period for active orders has expired.");
                         }
                     }
-                    
+
                     // Apply cancellation-specific updates
-                    if(order.ChatRoom != null)
+                    if (order.ChatRoom != null)
                     {
                         order.ChatRoom.ClosedAt = DateTime.UtcNow;
                         order.ChatRoom.IsActive = false;
@@ -226,7 +226,7 @@ namespace PasabuyAPI.Repositories.Implementations
                             ?? throw new NotFoundException($"There is no active order for customer {customerId}");
 
         }
-        
+
         public async Task<Orders> GetActiveOrderCourier(long courierId)
         {
             return await _context.Orders
@@ -235,7 +235,7 @@ namespace PasabuyAPI.Repositories.Implementations
                             .Include(o => o.DeliveryDetails)
                             .Include(o => o.Payment)
                             .FirstOrDefaultAsync(o => o.CourierId == courierId && ActiveStatuses.Contains(o.Status)) ?? throw new NotFoundException($"There is no active order for customer {courierId}");
-                            
+
         }
 
         // Helper Methods
@@ -275,7 +275,7 @@ namespace PasabuyAPI.Repositories.Implementations
                                 .FirstOrDefaultAsync(o => o.OrderIdPK == orderId && o.CourierId == courierId)
                                     ?? throw new NotFoundException($"Combination of Order ID {orderId} and Courier ID {courierId} does not exist");
 
-            order.IsCustomerReviewed = status;
+            order.IsCourierReviewed = status;
             order.Updated_at = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
