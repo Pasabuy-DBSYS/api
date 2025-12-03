@@ -13,10 +13,13 @@ namespace PasabuyAPI.Repositories.Implementations
         public async Task<Reviews> CreateReview(Reviews review)
         {
             _context.Reviews.Add(review);
+            await _context.SaveChangesAsync();
+            
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserIdPK == review.ReviewedUserID) ?? throw new NotFoundException($"User not found {review.ReviewedUserID}");
             var rating = await GetAverageRatingByReviewedIdAsync(user.UserIdPK);
             user.RatingAverage = rating;
             await _context.SaveChangesAsync();
+            
             return review;
         }
 
@@ -40,7 +43,7 @@ namespace PasabuyAPI.Repositories.Implementations
             if (reviews.Count == 0)
                 return 0;
 
-            return (decimal)reviews.Average(r => r.Rating);
+            return Math.Round((decimal)reviews.Average(r => r.Rating), 1);
         }
     }
 }
