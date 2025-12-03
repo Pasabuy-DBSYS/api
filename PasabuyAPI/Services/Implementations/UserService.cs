@@ -169,5 +169,20 @@ namespace PasabuyAPI.Services.Implementations
         {
             return await userRepository.GetCourierStatistics(userId);
         }
+
+        public async Task<bool> ExistsByEmailAsync(string email)
+        {
+            return await userRepository.ExistsByEmailAsync(email);
+        }
+
+        public async Task<bool> ExistsByUsernameAsync(string username)
+        {
+            return await userRepository.ExistsByUsernameAsync(username);
+        }
+
+        public async Task<bool> ExistsByPhoneNumberUsernameAsync(string phone)
+        {
+            return await userRepository.ExistsByPhoneAsync(phone);
+        }
     }
 }

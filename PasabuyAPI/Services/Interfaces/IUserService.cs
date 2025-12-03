@@ -21,5 +21,10 @@ namespace PasabuyAPI.Services.Interfaces
         Task<string> VerifyUser(long userId);
         Task<CustomerStatisticsResponseDTO> GetCustomerStatistics(long userId);
         Task<CourierStatisticsResponseDTO> GetCourierStatistics(long userId);
+
+        //helpers
+        Task<bool> ExistsByEmailAsync(string email);
+        Task<bool> ExistsByUsernameAsync(string username);
+        Task<bool> ExistsByPhoneNumberUsernameAsync(string phone);
     }
 }
