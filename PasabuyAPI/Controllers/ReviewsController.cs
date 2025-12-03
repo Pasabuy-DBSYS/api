@@ -12,12 +12,14 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using PasabuyAPI.Hubs;
+using PasabuyAPI.Repositories.Interfaces;
+using PasabuyAPI.Exceptions;
 
 namespace PasabuyAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ReviewsController(IReviewsService reviewsService, IOrderService orderService, INotificationService notificationService, IHubContext<NotificationHub> notificationsHub) : ControllerBase
+    public class ReviewsController(IReviewsService reviewsService, IOrderService orderService, INotificationService notificationService, IUserService userService ,IHubContext<NotificationHub> notificationsHub) : ControllerBase
     {
         private readonly IReviewsService _reviewsService = reviewsService;
         private readonly IOrderService _orderService = orderService;
@@ -119,6 +121,9 @@ namespace PasabuyAPI.Controllers
                         await notificationsHub.Clients.Group($"user:{order.CustomerId}").SendAsync("ReceiveNotification", customerInformedResp);
                     }
                 }
+
+                var user = await userService.GetUserByIdAsync(reviewData.ReviewedUserID) ?? throw new NotFoundException($"User Id {reviewData.ReviewedUserID} not found");
+                await notificationsHub.Clients.Group($"user:{reviewData.ReviewedUserID}").SendAsync("NewReviewReceived", user.RatingAverage);
 
                 return CreatedAtAction(
                     actionName: nameof(GetReviewAsync),
