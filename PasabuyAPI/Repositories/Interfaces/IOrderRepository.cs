@@ -19,6 +19,9 @@ namespace PasabuyAPI.Repositories.Interfaces
         Task<Orders> GetActiveOrderCourier(long courierId);
         Task<Orders> UpdateCustomerReviewedStatus(long customerId, bool status, long orderId);
         Task<Orders> UpdateCourierReviewedStatus(long courierId, bool status, long orderId);
+        Task<Orders> UpdateEstimatedDeliveryTime(long orderId, DateTime estimatedDeliveryTime);
+        Task<Orders> UpdateActualDeliveryTime(long orderId);
+        Task<Orders> UpdateActualPickupTime(long orderId);
 
         //Helper Method
         Task<bool> IsUserAvailable(long userId);

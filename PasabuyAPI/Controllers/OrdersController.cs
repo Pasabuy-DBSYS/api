@@ -253,5 +253,65 @@ namespace PasabuyAPI.Controllers
 
             return Ok(coords);
         }
+
+        [Authorize(Policy = "CourierOnly")]
+        [HttpPatch("{orderId}/estimated-delivery-time")]
+        public async Task<ActionResult<OrderResponseDTO>> UpdateEstimatedDeliveryTime(long orderId, [FromBody] UpdateEstimatedDeliveryTimeRequestDTO request)
+        {
+            var currentUser = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!long.TryParse(currentUser, out var currentUserId))
+                return Forbid("Invalid token - user ID not found");
+
+            var response = await orderService.UpdateEstimatedDeliveryTime(orderId, request.EstimatedDeliveryTime, currentUserId);
+
+            await hubContext.Clients.Group($"ORDER_{orderId}").SendAsync("EstimatedDeliveryTimeUpdated", new
+            {
+                orderId,
+                response.DeliveryDetailsDTO.EstimatedDeliveryTime
+            });
+
+            return Ok(response);
+        }
+
+        [Authorize(Policy = "CourierOnly")]
+        [HttpPatch("{orderId}/actual-pickup-time")]
+        public async Task<ActionResult<OrderResponseDTO>> UpdateActualPickupTime(long orderId)
+        {
+            var currentUser = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!long.TryParse(currentUser, out var currentUserId))
+                return Forbid("Invalid token - user ID not found");
+
+            var response = await orderService.UpdateActualPickupTime(orderId, currentUserId);
+
+            await hubContext.Clients.Group($"ORDER_{orderId}").SendAsync("ActualPickupTimeUpdated", new
+            {
+                orderId,
+                response.DeliveryDetailsDTO.ActualPickupTime
+            });
+
+            return Ok(response);
+        }
+
+        [Authorize(Policy = "CourierOnly")]
+        [HttpPatch("{orderId}/actual-delivery-time")]
+        public async Task<ActionResult<OrderResponseDTO>> UpdateActualDeliveryTime(long orderId)
+        {
+            var currentUser = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!long.TryParse(currentUser, out var currentUserId))
+                return Forbid("Invalid token - user ID not found");
+
+            var response = await orderService.UpdateActualDeliveryTime(orderId, currentUserId);
+
+            await hubContext.Clients.Group($"ORDER_{orderId}").SendAsync("ActualDeliveryTimeUpdated", new
+            {
+                orderId,
+                response.DeliveryDetailsDTO.ActualDeliveryTime
+            });
+
+            return Ok(response);
+        }
     }
 }

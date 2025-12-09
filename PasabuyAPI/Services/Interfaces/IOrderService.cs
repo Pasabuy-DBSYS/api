@@ -19,5 +19,8 @@ namespace PasabuyAPI.Services.Interfaces
         Task<OrderResponseDTO> GetActiveOrderCourier(long courierId);
         Task<OrderResponseDTO> UpdateCustomerReviewedStatus(long customerId, bool status, long orderId);
         Task<OrderResponseDTO> UpdateCourierReviewedStatus(long courierId, bool status, long orderId);
+        Task<OrderResponseDTO> UpdateEstimatedDeliveryTime(long orderId, DateTime estimatedDeliveryTime, long currentUserId);
+        Task<OrderResponseDTO> UpdateActualDeliveryTime(long orderId, long currentUserId);
+        Task<OrderResponseDTO> UpdateActualPickupTime(long orderId, long currentUserId);
     }
 }

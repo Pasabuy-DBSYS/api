@@ -3,6 +3,7 @@ using PasabuyAPI.DTOs.Requests;
 using PasabuyAPI.DTOs.Responses;
 using PasabuyAPI.Enums;
 using PasabuyAPI.Models;
+using PasabuyAPI.Exceptions;
 using PasabuyAPI.Repositories.Interfaces;
 using PasabuyAPI.Services.Interfaces;
 
@@ -121,5 +122,38 @@ public class OrderService(IOrderRepository orderRepository, IDeliveryDetailsRepo
     {
         Orders updated = await orderRepository.UpdateCourierReviewedStatus(courierId, status, orderId);
         return updated.Adapt<OrderResponseDTO>();
+    }
+
+    public async Task<OrderResponseDTO> UpdateEstimatedDeliveryTime(long orderId, DateTime estimatedDeliveryTime, long currentUserId)
+    {
+        var order = await orderRepository.GetOrderByOrderId(orderId) ?? throw new NotFoundException($"Order id {orderId} not found");
+        EnsureCourierAccess(order, currentUserId);
+
+        Orders updated = await orderRepository.UpdateEstimatedDeliveryTime(orderId, estimatedDeliveryTime);
+        return updated.Adapt<OrderResponseDTO>();
+    }
+
+    public async Task<OrderResponseDTO> UpdateActualDeliveryTime(long orderId, long currentUserId)
+    {
+        var order = await orderRepository.GetOrderByOrderId(orderId) ?? throw new NotFoundException($"Order id {orderId} not found");
+        EnsureCourierAccess(order, currentUserId);
+
+        Orders updated = await orderRepository.UpdateActualDeliveryTime(orderId);
+        return updated.Adapt<OrderResponseDTO>();
+    }
+
+    public async Task<OrderResponseDTO> UpdateActualPickupTime(long orderId, long currentUserId)
+    {
+        var order = await orderRepository.GetOrderByOrderId(orderId) ?? throw new NotFoundException($"Order id {orderId} not found");
+        EnsureCourierAccess(order, currentUserId);
+
+        Orders updated = await orderRepository.UpdateActualPickupTime(orderId);
+        return updated.Adapt<OrderResponseDTO>();
+    }
+
+    private static void EnsureCourierAccess(Orders order, long currentUserId)
+    {
+        if (order.CourierId == null || order.CourierId != currentUserId)
+            throw new UnauthorizedAccessException("You are not authorized to update this order.");
     }
 }

@@ -149,6 +149,12 @@ namespace PasabuyAPI.Repositories.Implementations
                 order.Updated_at = DateTime.UtcNow;
                 order.Status = status;
 
+                if (status == Status.PICKED_UP && order.DeliveryDetails != null)
+                {
+                    order.DeliveryDetails.ActualPickupTime = DateTime.UtcNow;
+                    order.DeliveryDetails.UpdatedAt = DateTime.UtcNow;
+                }
+
                 if (status == Status.DELIVERED && order.DeliveryDetails != null)
                 {
                     order.DeliveryDetails.ActualDeliveryTime = DateTime.UtcNow;
@@ -284,6 +290,55 @@ namespace PasabuyAPI.Repositories.Implementations
             return order;
         }
 
+        public async Task<Orders> UpdateEstimatedDeliveryTime(long orderId, DateTime estimatedDeliveryTime)
+        {
+            var order = await _context.Orders
+                                .Include(o => o.DeliveryDetails)
+                                .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
+                                    ?? throw new NotFoundException($"Order id {orderId} not found");
+
+            var utcEstimatedTime = estimatedDeliveryTime.Kind == DateTimeKind.Utc
+                ? estimatedDeliveryTime
+                : estimatedDeliveryTime.ToUniversalTime();
+
+            order.DeliveryDetails.EstimatedDeliveryTime = utcEstimatedTime;
+            order.DeliveryDetails.UpdatedAt = DateTime.UtcNow;
+            order.Updated_at = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return order;
+        }
+
+        public async Task<Orders> UpdateActualDeliveryTime(long orderId)
+        {
+            var order = await _context.Orders
+                                .Include(o => o.DeliveryDetails)
+                                .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
+                                    ?? throw new NotFoundException($"Order id {orderId} not found");
+
+            order.DeliveryDetails.ActualDeliveryTime = DateTime.UtcNow;
+            order.DeliveryDetails.UpdatedAt = DateTime.UtcNow;
+            order.Updated_at = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return order;
+        }
+
+        public async Task<Orders> UpdateActualPickupTime(long orderId)
+        {
+            var order = await _context.Orders
+                                .Include(o => o.DeliveryDetails)
+                                .FirstOrDefaultAsync(o => o.OrderIdPK == orderId)
+                                    ?? throw new NotFoundException($"Order id {orderId} not found");
+
+            order.DeliveryDetails.ActualPickupTime = DateTime.UtcNow;
+            order.DeliveryDetails.UpdatedAt = DateTime.UtcNow;
+            order.Updated_at = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return order;
+        }
+
         public async Task<int> GetTotalDeliveries(long courierId)
         {
             return await _context.Orders.CountAsync(o => o.CourierId == courierId && o.Status == Status.DELIVERED);
@@ -293,5 +348,7 @@ namespace PasabuyAPI.Repositories.Implementations
         {
             return await _context.Orders.CountAsync(o => o.CustomerId == customerId && o.Status == Status.DELIVERED);
         }
+
+        
     }
 }

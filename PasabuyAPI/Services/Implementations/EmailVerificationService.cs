@@ -25,7 +25,7 @@ namespace PasabuyAPI.Services.Implementations
                 .Replace("{{companyName}}", "PasaBuy")
                 .Replace("{{companyAddress}}", "Cebu, Philippines");
 
-            emailServices.SendEmailAsync(email, "PasaBuy Verification Code", htmlBody);
+            await emailServices.SendEmailAsync(email, "PasaBuy Verification Code", htmlBody);
 
             return result.Adapt<EmailVerificationResponseDTO>();
         }
