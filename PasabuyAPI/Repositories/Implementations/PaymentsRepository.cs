@@ -121,7 +121,7 @@ namespace PasabuyAPI.Repositories.Implementations
 
         public async Task<decimal> GetCourierTotalEarnings(long courierId)
         {
-            var payments = await _context.Payments.Where(p => p.Order.CourierId == courierId).SumAsync(p => p.DeliveryFee);
+            var payments = await _context.Payments.Where(p => p.Order.CourierId == courierId && p.Order.Status == Status.DELIVERED).SumAsync(p => p.DeliveryFee);
             return payments;
         }
     }
